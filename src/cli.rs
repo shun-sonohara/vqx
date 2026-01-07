@@ -79,14 +79,6 @@ pub enum Commands {
     #[command(subcommand)]
     Profile(ProfileCommands),
 
-    /// Pass commands directly to the underlying CLI (deprecated)
-    ///
-    /// Note: This command is deprecated. You can now run CLI commands directly:
-    ///   vqx list types          (new, recommended)
-    ///   vqx passthrough list types  (old, still works)
-    #[command(hide = true)]
-    Passthrough(PassthroughArgs),
-
     // =========================================================================
     // Phase 2: Export/Import (to be implemented)
     // =========================================================================
@@ -294,18 +286,6 @@ pub struct ProfileExportArgs {
 pub struct ProfileInitArgs {
     /// Profile name to create
     pub name: Option<String>,
-}
-
-// =============================================================================
-// Phase 1: Passthrough
-// =============================================================================
-
-/// Arguments for passthrough command
-#[derive(Args, Debug)]
-pub struct PassthroughArgs {
-    /// Arguments to pass to the underlying CLI
-    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
-    pub args: Vec<String>,
 }
 
 // =============================================================================
@@ -611,12 +591,12 @@ mod tests {
     }
 
     #[test]
-    fn test_passthrough() {
-        let cli = Cli::parse_from(["vqx", "passthrough", "list", "types"]);
-        if let Commands::Passthrough(args) = cli.command {
-            assert_eq!(args.args, vec!["list", "types"]);
+    fn test_external_command() {
+        let cli = Cli::parse_from(["vqx", "list", "types"]);
+        if let Commands::External(args) = cli.command {
+            assert_eq!(args, vec!["list", "types"]);
         } else {
-            panic!("Expected Passthrough command");
+            panic!("Expected External command");
         }
     }
 }

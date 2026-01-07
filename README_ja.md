@@ -369,12 +369,6 @@ vqx --profile prod run procedure Utils.getNamespaceAndProfiles
 vqx --profile dev list types
 ```
 
-> **注意**: `passthrough` サブコマンドは非推奨ですが、後方互換性のため引き続き使用できます:
-> ```bash
-> vqx passthrough list types  # 旧形式（引き続き動作）
-> vqx list types              # 新形式（推奨）
-> ```
-
 #### export
 
 Vantiq からリソースをエクスポート。JSON 正規化により git diff しやすい出力を生成。
