@@ -1,0 +1,57 @@
+[package]
+name = "vqx"
+version = "0.1.0"
+edition = "2021"
+description = "A safe, feature-rich Rust wrapper for the Vantiq CLI"
+license = "MIT"
+authors = ["vqx contributors"]
+
+[dependencies]
+# CLI framework
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Directories & paths
+directories = "5.0"
+dirs = "5.0"
+
+# UI / Progress
+indicatif = "0.17"
+dialoguer = "0.11"
+console = "0.15"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Secrets (with fallback)
+keyring = { version = "3.6", optional = true }
+
+# Encryption fallback
+age = { version = "0.10", optional = true }
+
+# Async (for future phases)
+tokio = { version = "1.43", features = ["process", "rt-multi-thread", "macros", "time"] }
+
+# Utilities
+which = "7.0"
+regex = "1.11"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.11", features = ["v4"] }
+
+[features]
+default = ["keyring-storage"]
+keyring-storage = ["keyring"]
+age-encryption = ["age"]
+
+[profile.release]
+lto = true
+strip = true

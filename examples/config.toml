@@ -1,0 +1,119 @@
+# vqx Configuration File
+#
+# Location:
+#   macOS/Linux: ~/.config/vqx/config.toml
+#   Windows:     %APPDATA%\vqx\config.toml
+#
+# PDF Reference: CLI Reference Guide
+
+# =============================================================================
+# CLI Executable
+# =============================================================================
+
+# Path to the underlying Vantiq CLI executable
+# PDF: Default is "vantiq" (Mac/Linux) or "vantiq.bat" (Windows)
+# Can also be set via VQX_CLI_PATH environment variable
+cli_path = "vantiq"
+
+# =============================================================================
+# Execution Settings
+# =============================================================================
+
+# Default timeout for CLI operations in seconds
+timeout_seconds = 120
+
+# Maximum number of retries for transient failures
+max_retries = 3
+
+# Base delay for exponential backoff (milliseconds)
+retry_delay_ms = 1000
+
+# Default chunk size for export/import operations
+# PDF: "-chunk <integer>" option
+default_chunk_size = 5000
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+
+[logging]
+# Log level: trace, debug, info, warn, error
+level = "info"
+
+# Log format: text, json
+format = "text"
+
+# Include timestamps in logs
+timestamps = true
+
+# Optional log file path (uncomment to enable)
+# file = "/var/log/vqx/vqx.log"
+
+# =============================================================================
+# Output Configuration
+# =============================================================================
+
+[output]
+# Default output format: json, table, csv
+default_format = "table"
+
+# Pretty print JSON output
+pretty_json = true
+
+# Use colors in output
+colors = true
+
+# Show progress bars for long operations
+progress = true
+
+# =============================================================================
+# Safe Delete Configuration (Phase 4)
+# Extension: Wraps PDF's delete/deleteMatching with safety measures
+# =============================================================================
+
+[safe_delete]
+# Always require confirmation for destructive operations
+require_confirm = true
+
+# Always create backup before delete
+require_backup = true
+
+# Maximum items to delete without explicit --force
+max_items_without_force = 10
+
+# Directory for backups (optional)
+# backup_dir = "~/.vqx/backups"
+
+# Allowlist of resource prefixes that can be deleted
+# Empty = allow all (subject to blocklist)
+allowed_prefixes = []
+
+# Blocklist of resource prefixes that cannot be deleted
+# Protects system resources from accidental deletion
+blocked_prefixes = ["System", "ARS"]
+
+# =============================================================================
+# JSON Normalization Settings (Phase 2+)
+# Extension: Normalizes CLI output for git-friendly diffs
+# =============================================================================
+
+[normalization]
+# Sort object keys alphabetically
+sort_keys = true
+
+# Sort arrays by name/id field
+sort_arrays = true
+
+# Fields to exclude from normalized output (timestamps, etc.)
+# These fields change frequently and clutter diffs
+excluded_fields = [
+    "ars_modifiedAt",
+    "ars_createdAt",
+    "ars_modifiedBy",
+    "ars_createdBy",
+    "_id",
+    "ars_version",
+]
+
+# Fields to use for array sorting (in priority order)
+array_sort_fields = ["name", "id", "_id"]

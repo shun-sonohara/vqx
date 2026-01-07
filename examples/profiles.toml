@@ -1,0 +1,120 @@
+# vqx Profiles File
+#
+# Location:
+#   macOS/Linux: ~/.config/vqx/profiles.toml
+#   Windows:     %APPDATA%\vqx\profiles.toml
+#
+# PDF Reference: CLI Reference Guide - "Profile" section
+#
+# Original Vantiq CLI uses Groovy format (~/.vantiq/profile):
+#   base {
+#       url = 'https://dev.vantiq.com'
+#       username = 'myUsername'
+#       password = 'myPassword'
+#   }
+#
+# vqx uses TOML format with the same fields mapped.
+
+# Default profile to use when --profile is not specified
+default_profile = "dev"
+
+# =============================================================================
+# Development Profile
+# Using access token (recommended for public clouds)
+# =============================================================================
+
+[profiles.dev]
+# PDF: "url = '...'" -> maps to "-b <baseURL>"
+# PDF: "Default: https://dev.vantiq.com"
+url = "https://dev.vantiq.com"
+
+# PDF: "token = '...'" -> maps to "-t <token>"
+# PDF Note: "public clouds and any server using keycloak access
+#           require use of the token option"
+#
+# SECURITY: In production, use secure storage instead of plain text:
+#   vqx profile set dev --token YOUR_TOKEN --secure
+token = "YOUR_ACCESS_TOKEN_HERE"
+
+# PDF: "-trust" flag
+# PDF: "Force SSL options to trust remote server certificate and host name"
+trust_ssl = false
+
+# vqx extension: Description for this profile
+description = "Development environment"
+
+# vqx extension: If true, credentials are in secure storage (keyring)
+use_secure_storage = false
+
+# =============================================================================
+# Production Profile
+# Using access token with secure storage
+# =============================================================================
+
+[profiles.production]
+url = "https://prod.vantiq.com"
+
+# When use_secure_storage is true, token is stored in system keyring
+# Set via: vqx profile set production --token YOUR_TOKEN --secure
+use_secure_storage = true
+trust_ssl = false
+description = "Production environment - handle with care"
+
+# =============================================================================
+# Edge Server Profile
+# Using username/password (Edge servers only)
+# =============================================================================
+
+[profiles.edge]
+# PDF: "url = '...'"
+url = "https://edge.example.com:8080"
+
+# PDF: "username = '...'" -> maps to "-u <username>"
+# PDF: "password = '...'" -> maps to "-p <password>"
+# PDF Note: "username/password can only be used for Edge servers"
+username = "admin"
+
+# SECURITY: Store password in secure storage in production
+# password = "YOUR_PASSWORD_HERE"
+use_secure_storage = true
+
+# PDF: "namespace = '...'" -> maps to "-n <namespace>"
+# PDF Note: "the namespace option can only be used with username/password;
+#           it cannot be used with long-lived access tokens"
+namespace = "EdgeApp"
+
+# Trust self-signed certificates (common for Edge servers)
+trust_ssl = true
+
+description = "Local Edge server"
+
+# =============================================================================
+# Testing Profile
+# =============================================================================
+
+[profiles.test]
+url = "https://test.vantiq.com"
+token = "TEST_TOKEN_HERE"
+trust_ssl = false
+description = "Testing environment"
+
+# =============================================================================
+# Advanced Profile with Client Options (Future)
+# Based on PDF "HttpClient options" section
+# =============================================================================
+
+# [profiles.advanced]
+# url = "https://internal.vantiq.com"
+# token = "..."
+# description = "Internal server with proxy"
+#
+# [profiles.advanced.client_options]
+# trust_all = true
+# verify_host = false
+# force_sni = true
+#
+# [profiles.advanced.client_options.proxy]
+# host = "proxy.example.com"
+# port = 8888
+# username = "proxy_user"
+# password = "proxy_pass"
