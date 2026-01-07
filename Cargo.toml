@@ -32,9 +32,6 @@ console = "0.15"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# Secrets (with fallback)
-keyring = { version = "3.6", optional = true }
-
 # Encryption fallback
 age = { version = "0.10", optional = true }
 
@@ -48,6 +45,19 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.11", features = ["v4"] }
 tempfile = "3.14"
 similar = "2.6"
+
+# Platform-specific credential storage
+# - macOS: apple-native (Keychain)
+# - Linux: linux-native (Secret Service via libsecret)
+# - Windows: windows-native (Credential Manager)
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3.6", features = ["apple-native"], optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+keyring = { version = "3.6", features = ["linux-native"], optional = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "3.6", features = ["windows-native"], optional = true }
 
 [features]
 default = ["keyring-storage"]
