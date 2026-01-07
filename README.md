@@ -111,19 +111,127 @@ vqx --profile myprofile passthrough export metadata -d ./export
 
 ## Configuration
 
-### Profile Storage
+### Profile Storage (profiles.toml)
 
 Profiles are stored in TOML format at:
 - macOS/Linux: `~/.config/vqx/profiles.toml`
 - Windows: `%APPDATA%\vqx\profiles.toml`
 
-### Global Configuration
+See [examples/profiles.toml](examples/profiles.toml) for a sample configuration.
+
+**Profile Structure:**
+
+```toml
+# Default profile when --profile is not specified
+default_profile = "dev"
+
+[profiles.dev]
+url = "https://dev.vantiq.com"
+token = "YOUR_ACCESS_TOKEN"           # For public clouds (recommended)
+# username = "user"                   # For Edge servers only
+# password = "pass"                   # For Edge servers only
+# namespace = "MyNamespace"           # Only with username/password
+trust_ssl = false
+description = "Development environment"
+use_secure_storage = false            # true = store credentials in keyring
+```
+
+**Authentication Options (based on PDF):**
+
+| Field | PDF Flag | Description |
+|-------|----------|-------------|
+| `url` | `-b` | Vantiq server URL |
+| `token` | `-t` | Access token (required for public clouds) |
+| `username` | `-u` | Username (Edge servers only) |
+| `password` | `-p` | Password (Edge servers only) |
+| `namespace` | `-n` | Target namespace (username/password only) |
+| `trust_ssl` | `-trust` | Trust SSL certificates |
+
+**Profile Management Commands:**
+
+```bash
+# Create profile interactively
+vqx profile init
+
+# Create/update profile
+vqx profile set myprofile --url https://dev.vantiq.com --token YOUR_TOKEN
+
+# Create profile with secure storage (keyring)
+vqx profile set myprofile --url https://dev.vantiq.com --token YOUR_TOKEN --secure
+
+# List all profiles
+vqx profile list
+
+# Show profile details
+vqx profile show myprofile
+
+# Set default profile
+vqx profile default myprofile
+
+# Delete profile
+vqx profile delete myprofile
+```
+
+### Global Configuration (config.toml)
 
 Configuration file location:
 - macOS/Linux: `~/.config/vqx/config.toml`
 - Windows: `%APPDATA%\vqx\config.toml`
 
 See [examples/config.toml](examples/config.toml) for a sample configuration.
+
+**Configuration Options:**
+
+```toml
+# CLI executable path
+cli_path = "vantiq"
+
+# Execution settings
+timeout_seconds = 120
+max_retries = 3
+retry_delay_ms = 1000
+default_chunk_size = 5000
+
+# Logging
+[logging]
+level = "info"              # trace, debug, info, warn, error
+format = "text"             # text, json
+
+# Output
+[output]
+default_format = "table"    # json, table, csv
+pretty_json = true
+colors = true
+progress = true
+
+# JSON normalization for git-friendly diffs
+[normalization]
+sort_keys = true
+sort_arrays = true
+excluded_fields = [
+    "ars_modifiedAt",
+    "ars_createdAt",
+    "ars_modifiedBy",
+    "ars_createdBy",
+    "_id",
+    "ars_version",
+]
+
+# Safe delete settings (Phase 4)
+[safe_delete]
+require_confirm = true
+require_backup = true
+max_items_without_force = 10
+blocked_prefixes = ["System", "ARS"]
+```
+
+**Environment Variables:**
+
+| Variable | Description |
+|----------|-------------|
+| `VQX_CLI_PATH` | Override `cli_path` setting |
+| `VQX_PROFILE` | Default profile name |
+| `VQX_CONFIG` | Path to config.toml |
 
 ## CLI Usage
 

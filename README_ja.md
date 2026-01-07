@@ -111,19 +111,127 @@ vqx --profile myprofile passthrough export metadata -d ./export
 
 ## 設定
 
-### プロファイル保存場所
+### プロファイル保存場所 (profiles.toml)
 
 プロファイルは TOML 形式で以下に保存:
 - macOS/Linux: `~/.config/vqx/profiles.toml`
 - Windows: `%APPDATA%\vqx\profiles.toml`
 
-### グローバル設定
+サンプル設定は [examples/profiles.toml](examples/profiles.toml) を参照。
+
+**プロファイル構造:**
+
+```toml
+# --profile が指定されていない場合のデフォルトプロファイル
+default_profile = "dev"
+
+[profiles.dev]
+url = "https://dev.vantiq.com"
+token = "YOUR_ACCESS_TOKEN"           # パブリッククラウド用（推奨）
+# username = "user"                   # エッジサーバーのみ
+# password = "pass"                   # エッジサーバーのみ
+# namespace = "MyNamespace"           # username/passwordでのみ使用可能
+trust_ssl = false
+description = "開発環境"
+use_secure_storage = false            # true = キーリングに認証情報を保存
+```
+
+**認証オプション（PDFに基づく）:**
+
+| フィールド | PDFフラグ | 説明 |
+|-----------|----------|------|
+| `url` | `-b` | Vantiq サーバー URL |
+| `token` | `-t` | アクセストークン（パブリッククラウド必須） |
+| `username` | `-u` | ユーザー名（エッジサーバーのみ） |
+| `password` | `-p` | パスワード（エッジサーバーのみ） |
+| `namespace` | `-n` | ターゲット名前空間（username/passwordのみ） |
+| `trust_ssl` | `-trust` | SSL証明書を信頼 |
+
+**プロファイル管理コマンド:**
+
+```bash
+# 対話形式でプロファイル作成
+vqx profile init
+
+# プロファイル作成/更新
+vqx profile set myprofile --url https://dev.vantiq.com --token YOUR_TOKEN
+
+# 安全なストレージ（キーリング）でプロファイル作成
+vqx profile set myprofile --url https://dev.vantiq.com --token YOUR_TOKEN --secure
+
+# 全プロファイル一覧
+vqx profile list
+
+# プロファイル詳細表示
+vqx profile show myprofile
+
+# デフォルトプロファイル設定
+vqx profile default myprofile
+
+# プロファイル削除
+vqx profile delete myprofile
+```
+
+### グローバル設定 (config.toml)
 
 設定ファイルの場所:
 - macOS/Linux: `~/.config/vqx/config.toml`
 - Windows: `%APPDATA%\vqx\config.toml`
 
 サンプル設定は [examples/config.toml](examples/config.toml) を参照。
+
+**設定オプション:**
+
+```toml
+# CLI実行ファイルパス
+cli_path = "vantiq"
+
+# 実行設定
+timeout_seconds = 120
+max_retries = 3
+retry_delay_ms = 1000
+default_chunk_size = 5000
+
+# ログ
+[logging]
+level = "info"              # trace, debug, info, warn, error
+format = "text"             # text, json
+
+# 出力
+[output]
+default_format = "table"    # json, table, csv
+pretty_json = true
+colors = true
+progress = true
+
+# gitフレンドリーな差分のためのJSON正規化
+[normalization]
+sort_keys = true
+sort_arrays = true
+excluded_fields = [
+    "ars_modifiedAt",
+    "ars_createdAt",
+    "ars_modifiedBy",
+    "ars_createdBy",
+    "_id",
+    "ars_version",
+]
+
+# 安全な削除設定（Phase 4）
+[safe_delete]
+require_confirm = true
+require_backup = true
+max_items_without_force = 10
+blocked_prefixes = ["System", "ARS"]
+```
+
+**環境変数:**
+
+| 変数 | 説明 |
+|------|------|
+| `VQX_CLI_PATH` | `cli_path` 設定を上書き |
+| `VQX_PROFILE` | デフォルトプロファイル名 |
+| `VQX_CONFIG` | config.toml のパス |
 
 ## CLI 使用方法
 
