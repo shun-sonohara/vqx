@@ -221,9 +221,7 @@ async fn check_cli_help(cli_path: &str) -> CheckResult {
                 .with_details(result.stderr)
             }
         }
-        Err(e) => {
-            CheckResult::fail("CLI Help", format!("Failed to run help command: {}", e))
-        }
+        Err(e) => CheckResult::fail("CLI Help", format!("Failed to run help command: {}", e)),
     }
 }
 
@@ -236,10 +234,7 @@ async fn check_connection(cli_path: &str) -> CheckResult {
     let profile_manager = match ProfileManager::new() {
         Ok(pm) => pm,
         Err(e) => {
-            return CheckResult::fail(
-                "Connection",
-                format!("Could not load profiles: {}", e),
-            );
+            return CheckResult::fail("Connection", format!("Could not load profiles: {}", e));
         }
     };
 
@@ -262,7 +257,7 @@ async fn check_connection(cli_path: &str) -> CheckResult {
         .with_details(
             "PDF Reference: Profile section - Use either:\n\
              - token option for public clouds (recommended)\n\
-             - username/password for Edge servers only"
+             - username/password for Edge servers only",
         );
     }
 
@@ -322,12 +317,7 @@ pub fn display_results(results: &[CheckResult], verbose: bool) {
             style(&result.message).red()
         };
 
-        println!(
-            "{} {}: {}",
-            emoji,
-            style(&result.name).bold(),
-            status_style
-        );
+        println!("{} {}: {}", emoji, style(&result.name).bold(), status_style);
 
         if verbose || !result.passed {
             if let Some(ref details) = result.details {
@@ -342,11 +332,7 @@ pub fn display_results(results: &[CheckResult], verbose: bool) {
     println!("{}", style("═".repeat(40)).dim());
 
     if all_passed {
-        println!(
-            "{} {}",
-            CHECK,
-            style("All checks passed!").green().bold()
-        );
+        println!("{} {}", CHECK, style("All checks passed!").green().bold());
     } else {
         println!(
             "{} {}",

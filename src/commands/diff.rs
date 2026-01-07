@@ -307,12 +307,7 @@ fn compare_directories(
                     // Files are identical
                 }
                 Err(e) => {
-                    errors.push(format!(
-                        "{}/{}: {}",
-                        resource_type,
-                        name,
-                        e
-                    ));
+                    errors.push(format!("{}/{}: {}", resource_type, name, e));
                 }
             }
         }
@@ -408,14 +403,12 @@ fn get_json_files(dir: &Path) -> HashMap<String, PathBuf> {
 
 /// Compare two JSON files
 fn compare_files(source: &Path, target: &Path, full_diff: bool) -> Result<Option<String>> {
-    let source_content = std::fs::read_to_string(source)
-        .map_err(|_| VqxError::FileReadFailed {
-            path: source.display().to_string(),
-        })?;
-    let target_content = std::fs::read_to_string(target)
-        .map_err(|_| VqxError::FileReadFailed {
-            path: target.display().to_string(),
-        })?;
+    let source_content = std::fs::read_to_string(source).map_err(|_| VqxError::FileReadFailed {
+        path: source.display().to_string(),
+    })?;
+    let target_content = std::fs::read_to_string(target).map_err(|_| VqxError::FileReadFailed {
+        path: target.display().to_string(),
+    })?;
 
     if source_content == target_content {
         return Ok(None);
@@ -545,7 +538,11 @@ fn display_diff_results(result: &DiffResult, full_diff: bool) {
 
     // Errors
     if !result.errors.is_empty() {
-        println!("{} {} error(s):", style("⚠").red().bold(), result.errors.len());
+        println!(
+            "{} {} error(s):",
+            style("⚠").red().bold(),
+            result.errors.len()
+        );
         for error in &result.errors {
             println!("    {}", style(error).red());
         }

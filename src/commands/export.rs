@@ -61,15 +61,15 @@ pub async fn run(
 
     if !profile.has_auth() {
         return Err(VqxError::ProfileInvalid {
-            message: format!("Profile '{}' has no authentication configured", profile_name),
+            message: format!(
+                "Profile '{}' has no authentication configured",
+                profile_name
+            ),
         });
     }
 
     // Determine output directory
-    let output_dir = args
-        .directory
-        .clone()
-        .unwrap_or_else(|| PathBuf::from("."));
+    let output_dir = args.directory.clone().unwrap_or_else(|| PathBuf::from("."));
 
     // Create output directory if it doesn't exist
     if !output_dir.exists() {
@@ -85,7 +85,10 @@ pub async fn run(
         println!("{}", style("─".repeat(50)).dim());
         println!("  Profile:   {}", style(profile_name).green());
         println!("  Server:    {}", profile.url);
-        println!("  Type:      {}", format_export_type(&args.export_type, &args.project));
+        println!(
+            "  Type:      {}",
+            format_export_type(&args.export_type, &args.project)
+        );
         println!("  Directory: {}", output_dir.display());
         if let Some(chunk) = args.chunk {
             println!("  Chunk:     {}", chunk);
@@ -252,15 +255,15 @@ pub async fn run(
     if !matches!(output_format, OutputFormat::Json) {
         println!();
         println!("{}", style("─".repeat(50)).dim());
-        println!(
-            "{} Export complete",
-            style("✓").green().bold()
-        );
+        println!("{} Export complete", style("✓").green().bold());
 
         // Show PDF reference for directory structure
         if verbose {
             println!();
-            println!("{}", style("PDF Reference: Export creates directories:").dim());
+            println!(
+                "{}",
+                style("PDF Reference: Export creates directories:").dim()
+            );
             println!(
                 "{}",
                 style("  types/, procedures/, rules/, sources/, services/,").dim()
