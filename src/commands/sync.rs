@@ -13,13 +13,12 @@
 //! - JSON normalization
 
 use crate::cli::{OutputFormat, SyncCommands, SyncPullArgs, SyncPushArgs};
-use crate::commands::diff::{self, ChangeKind, DiffResult};
+use crate::commands::diff::{self, DiffResult};
 use crate::config::Config;
 use crate::error::{Result, VqxError};
 use crate::normalizer::ResourceNormalizer;
 use crate::profile::ProfileManager;
 use crate::underlying::{CliOptions, UnderlyingCli};
-use chrono::Local;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -27,7 +26,7 @@ use serde::Serialize;
 use std::path::PathBuf;
 use std::time::Duration;
 use tempfile::TempDir;
-use tracing::{debug, info, warn};
+use tracing::warn;
 
 /// Result of sync operation
 #[derive(Debug, Serialize)]
@@ -83,7 +82,7 @@ async fn run_pull(
     config: &Config,
     profile_name: Option<&str>,
     output_format: OutputFormat,
-    verbose: bool,
+    _verbose: bool,
 ) -> Result<SyncResult> {
     // Load profile
     let manager = ProfileManager::new()?;
@@ -150,7 +149,7 @@ async fn run_pull(
 
     // Create output directory if it doesn't exist
     if !dir_exists {
-        std::fs::create_dir_all(output_dir).map_err(|e| VqxError::FileWriteFailed {
+        std::fs::create_dir_all(output_dir).map_err(|_e| VqxError::FileWriteFailed {
             path: output_dir.display().to_string(),
         })?;
     }
@@ -267,7 +266,7 @@ async fn run_push(
     config: &Config,
     profile_name: Option<&str>,
     output_format: OutputFormat,
-    verbose: bool,
+    _verbose: bool,
 ) -> Result<SyncResult> {
     // Load profile
     let manager = ProfileManager::new()?;

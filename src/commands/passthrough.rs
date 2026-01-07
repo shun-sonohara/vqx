@@ -14,7 +14,7 @@ use crate::error::Result;
 use crate::profile::ProfileManager;
 use crate::underlying::{CliOptions, UnderlyingCli};
 use console::style;
-use tracing::{debug, info, warn};
+use tracing::info;
 
 /// Run passthrough command
 pub async fn run(
@@ -40,7 +40,7 @@ pub async fn run(
         // Load profile and add connection options
         let manager = ProfileManager::new()?;
         let profile = manager.get_resolved(profile_name)?;
-        let options = CliOptions::from_profile(&profile);
+        let _options = CliOptions::from_profile(&profile);
 
         // Add connection options first
         // PDF: "-b <baseURL>"
@@ -122,7 +122,7 @@ fn mask_sensitive_args(args: &[String]) -> Vec<String> {
     let mut masked = Vec::new();
     let mut skip_next = false;
 
-    for (i, arg) in args.iter().enumerate() {
+    for (_i, arg) in args.iter().enumerate() {
         if skip_next {
             skip_next = false;
             masked.push("********".to_string());

@@ -23,7 +23,7 @@ pub struct Cli {
 
     /// Profile name to use for connection
     /// Maps to PDF's "-s <profileName>" option
-    #[arg(short, long, global = true, env = "VQX_PROFILE")]
+    #[arg(short = 's', long, global = true, env = "VQX_PROFILE")]
     pub profile: Option<String>,
 
     /// Path to vqx config file

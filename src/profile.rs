@@ -12,7 +12,6 @@
 //! - Interactive profile creation
 
 use crate::error::{Result, VqxError};
-use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -312,7 +311,7 @@ impl ProfileStore {
             return Ok(Self::default());
         }
 
-        let content = fs::read_to_string(path).map_err(|e| VqxError::ProfileFileNotFound {
+        let content = fs::read_to_string(path).map_err(|_e| VqxError::ProfileFileNotFound {
             path: path.display().to_string(),
         })?;
 

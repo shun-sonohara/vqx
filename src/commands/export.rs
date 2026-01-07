@@ -34,7 +34,6 @@ use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::path::PathBuf;
 use std::time::Duration;
-use tracing::{debug, info, warn};
 
 /// Export operation result
 #[derive(Debug)]
@@ -73,7 +72,7 @@ pub async fn run(
 
     // Create output directory if it doesn't exist
     if !output_dir.exists() {
-        std::fs::create_dir_all(&output_dir).map_err(|e| VqxError::FileWriteFailed {
+        std::fs::create_dir_all(&output_dir).map_err(|_e| VqxError::FileWriteFailed {
             path: output_dir.display().to_string(),
         })?;
     }

@@ -26,7 +26,6 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tempfile::TempDir;
-use tracing::{debug, info};
 
 /// Represents a difference between two resources
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -110,7 +109,7 @@ pub async fn run(
     args: &DiffArgs,
     config: &Config,
     output_format: OutputFormat,
-    verbose: bool,
+    _verbose: bool,
 ) -> Result<DiffResult> {
     let source = DiffSource::parse(&args.source);
     let target = DiffSource::parse(&args.target);
