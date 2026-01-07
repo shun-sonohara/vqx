@@ -1,0 +1,190 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [master]
+  # Manual trigger with version type selection
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  auto-release:
+    name: Auto Release
+    runs-on: ubuntu-latest
+    # Skip if commit message contains [skip-release] or [no-release] (only for push events)
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (!contains(github.event.head_commit.message, '[skip-release]') &&
+       !contains(github.event.head_commit.message, '[no-release]'))
+
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version
+        id: current_version
+        run: |
+          VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Get PR labels (for push events)
+        id: pr_labels
+        if: github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find the PR associated with this commit
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha
+            });
+
+            if (prs.length > 0) {
+              const labels = prs[0].labels.map(l => l.name);
+              console.log('PR labels:', labels);
+              return labels;
+            }
+            return [];
+          result-encoding: json
+
+      - name: Determine version bump type
+        id: bump_type
+        run: |
+          # For manual trigger, use the input
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.version_type }}" >> $GITHUB_OUTPUT
+            echo "Bump type (manual): ${{ github.event.inputs.version_type }}"
+            exit 0
+          fi
+
+          # Check PR labels first
+          PR_LABELS='${{ steps.pr_labels.outputs.result }}'
+          if echo "$PR_LABELS" | grep -q '"release:major"'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+            echo "Bump type (PR label): major"
+            exit 0
+          elif echo "$PR_LABELS" | grep -q '"release:minor"'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+            echo "Bump type (PR label): minor"
+            exit 0
+          elif echo "$PR_LABELS" | grep -q '"release:patch"'; then
+            echo "type=patch" >> $GITHUB_OUTPUT
+            echo "Bump type (PR label): patch"
+            exit 0
+          fi
+
+          # Check commit message
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MSG" == *"[major]"* ]]; then
+            echo "type=major" >> $GITHUB_OUTPUT
+            echo "Bump type (commit): major"
+          elif [[ "$COMMIT_MSG" == *"[minor]"* ]]; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+            echo "Bump type (commit): minor"
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+            echo "Bump type: patch (default)"
+          fi
+
+      - name: Calculate new version
+        id: new_version
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          BUMP_TYPE="${{ steps.bump_type.outputs.type }}"
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+          case "$BUMP_TYPE" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v$NEW_VERSION already exists, skipping release"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Cargo.toml version
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" Cargo.toml
+          echo "Updated Cargo.toml to version $NEW_VERSION"
+
+      - name: Update Cargo.lock
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          cargo update --package vqx
+
+      - name: Commit version bump
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          git add Cargo.toml Cargo.lock
+          git commit -m "chore: bump version to $NEW_VERSION [skip-release]"
+          git push
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          git tag "v$NEW_VERSION"
+          git push origin "v$NEW_VERSION"
+          echo "Created and pushed tag v$NEW_VERSION"
+
+      - name: Summary
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Previous version**: ${{ steps.current_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **New version**: ${{ steps.new_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bump type**: ${{ steps.bump_type.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Tag \`v${{ steps.new_version.outputs.version }}\` has been created and pushed." >> $GITHUB_STEP_SUMMARY
