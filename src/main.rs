@@ -72,8 +72,7 @@ async fn main() -> Result<()> {
 
         Commands::External(args) => {
             // Direct CLI access: `vqx list types` -> `vantiq list types`
-            commands::external::run(&args, &config, cli.profile.as_deref(), cli.verbose)
-                .await?
+            commands::external::run(&args, &config, cli.profile.as_deref(), cli.verbose).await?
         }
 
         // Phase 2: Export/Import
