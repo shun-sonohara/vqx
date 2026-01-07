@@ -6,22 +6,22 @@ A safe, feature-rich Rust wrapper for the Vantiq CLI.
 
 vqx provides workflow automation, safety guards, and developer-friendly features around the underlying Vantiq CLI.
 
-**Based on**: CLI Reference Guide PDF from Vantiq
+**Based on**: [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)
 
 ## Features
 
 ### Phase 1 (Implemented)
 
-| Command | Description | PDF Reference |
-|---------|-------------|---------------|
+| Command | Description | Reference |
+|---------|-------------|-----------|
 | `doctor` | Check environment prerequisites | Prerequisites, Installation sections |
 | `profile` | Manage connection profiles | Profile, Command Line Options sections |
 | `passthrough` | Direct CLI access | All commands |
 
 ### Phase 2 (Implemented)
 
-| Command | Description | PDF Reference |
-|---------|-------------|---------------|
+| Command | Description | Reference |
+|---------|-------------|-----------|
 | `export` | Export resources with JSON normalization | Export section |
 | `import` | Import resources with safety confirmations | Import section |
 
@@ -32,8 +32,8 @@ vqx provides workflow automation, safety guards, and developer-friendly features
 
 ### Phase 3 (Implemented)
 
-| Command | Description | PDF Reference |
-|---------|-------------|---------------|
+| Command | Description | Reference |
+|---------|-------------|-----------|
 | `diff` | Compare resources between environments or directories | - |
 | `sync pull` | Export from remote to local with normalization | Export section |
 | `sync push` | Import to remote with diff preview and confirmation | Import section |
@@ -52,7 +52,7 @@ vqx provides workflow automation, safety guards, and developer-friendly features
 
 ## Prerequisites
 
-From CLI Reference Guide PDF, "Prerequisites" section:
+From [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/), "Prerequisites" section:
 
 > The Vantiq CLI is a Java (Groovy) application and requires an installation of Java 11.
 
@@ -149,7 +149,7 @@ cargo build --release
 # Verify Java and CLI are properly installed
 vqx doctor
 
-# Verbose output with PDF references
+# Verbose output with CLI reference
 vqx doctor --verbose
 ```
 
@@ -166,7 +166,7 @@ vqx profile set myprofile \
     --description "Development environment"
 ```
 
-**PDF Note**: "public clouds and any server using keycloak access require use of the token option"
+**Note**: "public clouds and any server using keycloak access require use of the token option"
 
 ### 3. Use the CLI
 
@@ -205,9 +205,9 @@ description = "Development environment"
 use_secure_storage = false            # true = store credentials in keyring
 ```
 
-**Authentication Options (based on PDF):**
+**Authentication Options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)):**
 
-| Field | PDF Flag | Description |
+| Field | CLI Flag | Description |
 |-------|----------|-------------|
 | `url` | `-b` | Vantiq server URL |
 | `token` | `-t` | Access token (required for public clouds) |
@@ -343,9 +343,9 @@ vqx profile export <file>     # Export profiles to file
 vqx profile import <file>     # Import profiles from file
 ```
 
-Profile options (based on PDF "Command Line Options"):
+Profile options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Command Line Options"):
 
-| Option | PDF Flag | Description |
+| Option | CLI Flag | Description |
 |--------|----------|-------------|
 | `--url` | `-b` | Base URL (default: https://dev.vantiq.com) |
 | `--username` | `-u` | Username (Edge servers only) |
@@ -390,9 +390,9 @@ vqx export metadata --include types --include procedures
 vqx export metadata -d ./export --normalize false
 ```
 
-Export options (based on PDF "Export" section):
+Export options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Export" section):
 
-| Option | PDF Flag | Description |
+| Option | CLI Flag | Description |
 |--------|----------|-------------|
 | `-d, --directory` | `-d` | Output directory |
 | `--chunk` | `-chunk` | Chunk size for large exports |
@@ -429,9 +429,9 @@ vqx import metadata --include types --exclude rules
 vqx import metadata -d ./export --yes
 ```
 
-Import options (based on PDF "Import" section):
+Import options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Import" section):
 
-| Option | PDF Flag | Description |
+| Option | CLI Flag | Description |
 |--------|----------|-------------|
 | `-d, --directory` | `-d` | Input directory |
 | `--chunk` | `-chunk` | Chunk size for large imports |
@@ -522,11 +522,11 @@ Sync options:
 - Confirmation prompts for safety
 - Progress indicators
 
-## PDF Mapping
+## CLI Reference Mapping
 
 ### Connection Options
 
-| vqx | PDF CLI Flag | Description |
+| vqx | CLI Flag | Description |
 |-----|--------------|-------------|
 | `--profile` | `-s` | Profile name |
 | Profile.url | `-b` | Base URL |
@@ -536,7 +536,7 @@ Sync options:
 | Profile.namespace | `-n` | Target namespace |
 | Profile.trust_ssl | `-trust` | Trust SSL |
 
-### Important PDF Notes
+### Important Notes (from [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/))
 
 1. **Token vs Password**: "If a password is specified, it is used instead of the token."
 
@@ -585,7 +585,7 @@ src/
   error.rs          # Error types
   normalizer.rs     # JSON normalization for git-friendly diffs
   profile.rs        # Profile management
-  underlying.rs     # CLI execution layer (PDF-based)
+  underlying.rs     # CLI execution layer
   commands/
     mod.rs
     diff.rs         # Environment comparison
@@ -602,7 +602,7 @@ src/
 1. Define command in `src/cli.rs`
 2. Create implementation in `src/commands/`
 3. Add to dispatch in `src/main.rs`
-4. Document PDF mapping in code comments
+4. Document CLI reference mapping in code comments
 
 ## License
 

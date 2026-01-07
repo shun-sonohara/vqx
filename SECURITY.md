@@ -71,7 +71,7 @@ vqx wraps destructive CLI operations with safety guards:
 
 ### Protected Commands
 
-Based on CLI Reference Guide PDF:
+Based on [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/):
 - `delete <resource> <resourceId>`
 - `deleteMatching <resource> <query>`
 - `undeploy <configurationName>`

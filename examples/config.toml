@@ -5,8 +5,8 @@
 #   macOS/Linux: ~/.config/vqx/config.toml
 #   Windows:     %APPDATA%\vqx\config.toml
 #
-# PDF Reference: CLI Reference Guide
-# PDF参照: CLI Reference Guide
+# Reference: Vantiq CLI Reference Guide (https://dev.vantiq.com/docs/system/cli/)
+# 参照: Vantiq CLI Reference Guide (https://dev.vantiq.com/docs/system/cli/)
 
 # =============================================================================
 # CLI Executable / CLI実行ファイル
@@ -14,8 +14,8 @@
 
 # Path to the underlying Vantiq CLI executable
 # Vantiq CLI実行ファイルのパス
-# PDF: Default is "vantiq" (Mac/Linux) or "vantiq.bat" (Windows)
-# PDF: デフォルトは "vantiq" (Mac/Linux) または "vantiq.bat" (Windows)
+# Default is "vantiq" (Mac/Linux) or "vantiq.bat" (Windows)
+# デフォルトは "vantiq" (Mac/Linux) または "vantiq.bat" (Windows)
 # Can also be set via VQX_CLI_PATH environment variable
 # 環境変数 VQX_CLI_PATH でも設定可能
 cli_path = "vantiq"
@@ -38,7 +38,7 @@ retry_delay_ms = 1000
 
 # Default chunk size for export/import operations
 # エクスポート/インポート操作のデフォルトチャンクサイズ
-# PDF: "-chunk <integer>" option / PDF: "-chunk <integer>" オプション
+# CLI Reference: "-chunk <integer>" option / "-chunk <integer>" オプション
 default_chunk_size = 5000
 
 # =============================================================================
@@ -86,8 +86,8 @@ progress = true
 # =============================================================================
 # Safe Delete Configuration (Phase 4)
 # 安全な削除設定（Phase 4）
-# Extension: Wraps PDF's delete/deleteMatching with safety measures
-# 拡張機能: PDFのdelete/deleteMatchingを安全機能でラップ
+# Extension: Wraps CLI's delete/deleteMatching with safety measures
+# 拡張機能: CLIのdelete/deleteMatchingを安全機能でラップ
 # =============================================================================
 
 [safe_delete]
