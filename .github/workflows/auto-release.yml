@@ -198,6 +198,8 @@ jobs:
     name: Trigger Release Build
     needs: auto-release
     if: needs.auto-release.outputs.tag_created == 'true'
+    permissions:
+      contents: write
     uses: ./.github/workflows/release.yml
     with:
       tag: v${{ needs.auto-release.outputs.new_version }}
