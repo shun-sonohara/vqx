@@ -4,7 +4,7 @@
 
 // Phase 1: Core utilities
 pub mod doctor;
-pub mod passthrough;
+pub mod external;
 pub mod profile;
 
 // Phase 2: Export/Import

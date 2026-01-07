@@ -369,12 +369,6 @@ vqx --profile prod run procedure Utils.getNamespaceAndProfiles
 vqx --profile dev list types
 ```
 
-> **Note**: The `passthrough` subcommand is deprecated but still works for backward compatibility:
-> ```bash
-> vqx passthrough list types  # old style (still works)
-> vqx list types              # new style (recommended)
-> ```
-
 #### export
 
 Export resources from Vantiq with JSON normalization for git-friendly diffs.
