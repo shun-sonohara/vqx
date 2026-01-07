@@ -28,7 +28,6 @@ use dialoguer::Confirm;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::path::PathBuf;
 use std::time::Duration;
-use tracing::{debug, info, warn};
 
 /// Import operation result
 #[derive(Debug)]

@@ -9,7 +9,7 @@
 
 use crate::cli::DoctorArgs;
 use crate::config::Config;
-use crate::error::{Result, VqxError};
+use crate::error::Result;
 use crate::profile::ProfileManager;
 use crate::underlying::{CliOptions, UnderlyingCli};
 use console::{style, Emoji};

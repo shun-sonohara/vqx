@@ -18,7 +18,6 @@ use crate::profile::{
 use console::style;
 use dialoguer::{Confirm, Input, Password, Select};
 use std::fs;
-use tracing::info;
 
 /// Run profile subcommand
 pub async fn run(cmd: &ProfileCommands, output_format: OutputFormat) -> Result<()> {
