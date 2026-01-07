@@ -61,11 +61,80 @@ CLI Reference Guide PDF「Prerequisites」セクションより:
 
 ## インストール
 
+### GitHub Releases からダウンロード（推奨）
+
+[GitHub Releases](https://github.com/shun-sonohara/vqx/releases) からお使いのプラットフォーム用のバイナリをダウンロードしてください。
+
+| プラットフォーム | ファイル |
+|-----------------|----------|
+| Linux x86_64 | `vqx-linux-x86_64.tar.gz` |
+| macOS Intel | `vqx-macos-x86_64.tar.gz` |
+| macOS Apple Silicon | `vqx-macos-aarch64.tar.gz` |
+| Windows x86_64 | `vqx-windows-x86_64.zip` |
+
+#### Linux / macOS
+
+```bash
+# ダウンロードと展開（macOS Apple Silicon の例）
+curl -LO https://github.com/shun-sonohara/vqx/releases/latest/download/vqx-macos-aarch64.tar.gz
+tar xzf vqx-macos-aarch64.tar.gz
+
+# PATH に含まれるディレクトリに移動
+sudo mv vqx /usr/local/bin/
+
+# インストール確認
+vqx --version
+```
+
+#### macOS セキュリティ（Gatekeeper）
+
+macOS では以下のようなメッセージでバイナリがブロックされることがあります：
+> 「開発元を検証できないため開けません」
+
+または
+
+> 「Macに損害を与えたり、プライバシーを侵害する可能性のあるマルウェアが含まれていないことを検証できませんでした」
+
+この問題を解決するには、quarantine 属性を削除します：
+
+```bash
+# quarantine 属性を削除
+xattr -d com.apple.quarantine /usr/local/bin/vqx
+
+# カレントディレクトリに展開した場合
+xattr -d com.apple.quarantine ./vqx
+```
+
+または、Finder でバイナリを右クリックし、「開く」を選択してから、ダイアログで「開く」をクリックすることもできます。
+
+#### Windows
+
+1. [Releases](https://github.com/shun-sonohara/vqx/releases) から `vqx-windows-x86_64.zip` をダウンロード
+2. ZIP ファイルを展開
+3. `vqx.exe` を PATH に含まれるディレクトリに移動するか、展開したディレクトリを PATH に追加
+
+**PATH への追加（PowerShell）:**
+
+```powershell
+# ユーザー PATH に追加（ターミナルの再起動が必要）
+$path = [Environment]::GetEnvironmentVariable("Path", "User")
+[Environment]::SetEnvironmentVariable("Path", "$path;C:\path\to\vqx", "User")
+```
+
+**Windows セキュリティ（SmartScreen）:**
+
+Windows で SmartScreen の警告が表示される場合があります：
+> 「Windows によって PC が保護されました」
+
+「詳細情報」をクリックし、「実行」をクリックしてアプリケーションを許可してください。
+
+### ソースからビルド
+
 ```bash
 cargo install --path .
 ```
 
-または、ソースからビルド:
+または手動でビルド：
 
 ```bash
 cargo build --release

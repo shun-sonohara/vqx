@@ -61,11 +61,80 @@ From CLI Reference Guide PDF, "Prerequisites" section:
 
 ## Installation
 
+### From GitHub Releases (Recommended)
+
+Download the pre-built binary for your platform from [GitHub Releases](https://github.com/shun-sonohara/vqx/releases).
+
+| Platform | File |
+|----------|------|
+| Linux x86_64 | `vqx-linux-x86_64.tar.gz` |
+| macOS Intel | `vqx-macos-x86_64.tar.gz` |
+| macOS Apple Silicon | `vqx-macos-aarch64.tar.gz` |
+| Windows x86_64 | `vqx-windows-x86_64.zip` |
+
+#### Linux / macOS
+
+```bash
+# Download and extract (example for macOS Apple Silicon)
+curl -LO https://github.com/shun-sonohara/vqx/releases/latest/download/vqx-macos-aarch64.tar.gz
+tar xzf vqx-macos-aarch64.tar.gz
+
+# Move to a directory in your PATH
+sudo mv vqx /usr/local/bin/
+
+# Verify installation
+vqx --version
+```
+
+#### macOS Security (Gatekeeper)
+
+macOS may block the binary with a message like:
+> "vqx" cannot be opened because it is from an unidentified developer.
+
+or
+
+> macOS cannot verify that this app is free from malware.
+
+To resolve this, remove the quarantine attribute:
+
+```bash
+# Remove quarantine attribute
+xattr -d com.apple.quarantine /usr/local/bin/vqx
+
+# Or if you extracted to current directory
+xattr -d com.apple.quarantine ./vqx
+```
+
+Alternatively, you can right-click the binary in Finder, select "Open", and then click "Open" in the dialog.
+
+#### Windows
+
+1. Download `vqx-windows-x86_64.zip` from [Releases](https://github.com/shun-sonohara/vqx/releases)
+2. Extract the ZIP file
+3. Move `vqx.exe` to a directory in your PATH, or add the extracted directory to your PATH
+
+**Adding to PATH (PowerShell):**
+
+```powershell
+# Add to user PATH (requires restart of terminal)
+$path = [Environment]::GetEnvironmentVariable("Path", "User")
+[Environment]::SetEnvironmentVariable("Path", "$path;C:\path\to\vqx", "User")
+```
+
+**Windows Security (SmartScreen):**
+
+Windows may show a SmartScreen warning:
+> Windows protected your PC
+
+Click "More info" and then "Run anyway" to allow the application.
+
+### From Source
+
 ```bash
 cargo install --path .
 ```
 
-Or build from source:
+Or build manually:
 
 ```bash
 cargo build --release
