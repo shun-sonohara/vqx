@@ -18,9 +18,20 @@ vqx provides workflow automation, safety guards, and developer-friendly features
 | `profile` | Manage connection profiles | Profile, Command Line Options sections |
 | `passthrough` | Direct CLI access | All commands |
 
-### Phase 2+ (Planned)
+### Phase 2 (Implemented)
 
-- `export` / `import` - With JSON normalization for git-friendly diffs
+| Command | Description | PDF Reference |
+|---------|-------------|---------------|
+| `export` | Export resources with JSON normalization | Export section |
+| `import` | Import resources with safety confirmations | Import section |
+
+**Key Features:**
+- JSON normalization for git-friendly diffs (sorted keys, stable arrays, timestamp removal)
+- Confirmation prompts before destructive operations
+- Progress indicators and detailed output
+
+### Phase 3+ (Planned)
+
 - `diff` / `sync` - Compare and synchronize environments
 - `safe-delete` - Destructive operations with confirmation and backup
 - `promote` - Workflow: export -> diff -> confirm -> import -> test
@@ -164,6 +175,86 @@ vqx passthrough export metadata -d ./export
 vqx --profile prod passthrough run procedure Utils.getNamespaceAndProfiles
 ```
 
+#### export
+
+Export resources from Vantiq with JSON normalization for git-friendly diffs.
+
+```bash
+# Export metadata (default)
+vqx export -d ./export
+
+# Export with specific type
+vqx export metadata -d ./export
+vqx export data -d ./export
+
+# Export project
+vqx export project --project MyProject -d ./export
+
+# Export with chunking (for large exports)
+vqx export metadata -d ./export --chunk 5000
+
+# Export specific types only
+vqx export metadata --include types --include procedures
+
+# Disable JSON normalization
+vqx export metadata -d ./export --normalize false
+```
+
+Export options (based on PDF "Export" section):
+
+| Option | PDF Flag | Description |
+|--------|----------|-------------|
+| `-d, --directory` | `-d` | Output directory |
+| `--chunk` | `-chunk` | Chunk size for large exports |
+| `--include` | `-include` | Types to include |
+| `--exclude` | `-exclude` | Types to exclude |
+| `--until` | `-until` | Export data until timestamp |
+| `--ignore-errors` | `-ignoreErrors` | Ignore errors during export |
+| `--normalize` | (vqx extension) | Normalize JSON for git diffs (default: true) |
+
+**JSON Normalization** (vqx extension):
+- Sorts object keys alphabetically
+- Stabilizes array ordering by `name` or `ars_version`
+- Removes volatile timestamps (`ars_createdAt`, `ars_modifiedAt`, etc.)
+- Consistent indentation (2 spaces)
+
+#### import
+
+Import resources to Vantiq with safety confirmations.
+
+```bash
+# Import metadata (with confirmation prompt)
+vqx import metadata -d ./export
+
+# Import data
+vqx import data -d ./data
+
+# Import with chunking
+vqx import metadata -d ./export --chunk 5000
+
+# Import specific types only
+vqx import metadata --include types --exclude rules
+
+# Skip confirmation (for CI/CD)
+vqx import metadata -d ./export --yes
+```
+
+Import options (based on PDF "Import" section):
+
+| Option | PDF Flag | Description |
+|--------|----------|-------------|
+| `-d, --directory` | `-d` | Input directory |
+| `--chunk` | `-chunk` | Chunk size for large imports |
+| `--include` | `-include` | Types to include |
+| `--exclude` | `-exclude` | Types to exclude |
+| `--ignore` | `-ignore` | Resource types to ignore |
+| `-y, --yes` | (vqx extension) | Skip confirmation prompt |
+
+**Safety Features** (vqx extension):
+- Confirmation prompt before import (prevents accidental overwrites)
+- File count preview
+- Server and profile display
+
 ## PDF Mapping
 
 ### Connection Options
@@ -225,13 +316,16 @@ src/
   cli.rs            # CLI command definitions (clap)
   config.rs         # Global configuration
   error.rs          # Error types
+  normalizer.rs     # JSON normalization for git-friendly diffs
   profile.rs        # Profile management
   underlying.rs     # CLI execution layer (PDF-based)
   commands/
     mod.rs
     doctor.rs       # Environment checks
-    profile.rs      # Profile management
+    export.rs       # Export with normalization
+    import.rs       # Import with safety confirmations
     passthrough.rs  # Direct CLI access
+    profile.rs      # Profile management
 ```
 
 ### Adding New Commands
