@@ -12,7 +12,9 @@ use crate::cli::{
     ProfileImportArgs, ProfileInitArgs, ProfileSetArgs, ProfileShowArgs,
 };
 use crate::error::{Result, VqxError};
-use crate::profile::{Profile, ProfileManager, ProfileStore, DEFAULT_PROFILE_NAME, DEFAULT_VANTIQ_URL};
+use crate::profile::{
+    Profile, ProfileManager, ProfileStore, DEFAULT_PROFILE_NAME, DEFAULT_VANTIQ_URL,
+};
 use console::style;
 use dialoguer::{Confirm, Input, Password, Select};
 use std::fs;
@@ -61,7 +63,10 @@ async fn list(output_format: OutputFormat) -> Result<()> {
             if names.is_empty() {
                 println!("{}", style("No profiles configured.").dim());
                 println!();
-                println!("Run '{}' to create your first profile.", style("vqx profile init").green());
+                println!(
+                    "Run '{}' to create your first profile.",
+                    style("vqx profile init").green()
+                );
             } else {
                 for name in &names {
                     let marker = if name == default_name {
@@ -160,7 +165,8 @@ async fn show(args: &ProfileShowArgs, output_format: OutputFormat) -> Result<()>
                 "username/password" => {
                     println!(
                         "{}",
-                        style("  (PDF: 'username/password can only be used for Edge servers')").dim()
+                        style("  (PDF: 'username/password can only be used for Edge servers')")
+                            .dim()
                     );
                 }
                 _ => {}
@@ -177,11 +183,7 @@ async fn set(args: &ProfileSetArgs) -> Result<()> {
     let mut manager = ProfileManager::new()?;
 
     // Get existing profile or create new one
-    let mut profile = manager
-        .store()
-        .get(&args.name)
-        .cloned()
-        .unwrap_or_default();
+    let mut profile = manager.store().get(&args.name).cloned().unwrap_or_default();
 
     // Update fields if provided
     if let Some(ref url) = args.url {
@@ -456,10 +458,8 @@ async fn init(args: &ProfileInitArgs) -> Result<()> {
             println!();
             println!(
                 "{}",
-                style(
-                    "PDF Note: 'the namespace option can only be used with username/password'"
-                )
-                .dim()
+                style("PDF Note: 'the namespace option can only be used with username/password'")
+                    .dim()
             );
 
             let use_namespace = Confirm::new()

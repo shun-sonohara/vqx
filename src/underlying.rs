@@ -398,7 +398,10 @@ impl UnderlyingCli {
                 })
             }
             Err(_) => {
-                warn!(timeout_secs = self.timeout.as_secs(), "CLI command timed out");
+                warn!(
+                    timeout_secs = self.timeout.as_secs(),
+                    "CLI command timed out"
+                );
                 Err(VqxError::CliTimeout {
                     seconds: self.timeout.as_secs(),
                 })

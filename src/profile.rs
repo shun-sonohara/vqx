@@ -129,7 +129,11 @@ impl Profile {
 
     /// Set username/password authentication
     /// PDF Note: "username/password can only be used for Edge servers"
-    pub fn with_credentials(mut self, username: impl Into<String>, password: impl Into<String>) -> Self {
+    pub fn with_credentials(
+        mut self,
+        username: impl Into<String>,
+        password: impl Into<String>,
+    ) -> Self {
         self.username = Some(username.into());
         self.password = Some(password.into());
         self
@@ -418,7 +422,8 @@ impl ProfileStore {
 
 /// Get home directory
 fn dirs_home() -> Result<PathBuf> {
-    dirs::home_dir().ok_or_else(|| VqxError::Other("Could not determine home directory".to_string()))
+    dirs::home_dir()
+        .ok_or_else(|| VqxError::Other("Could not determine home directory".to_string()))
 }
 
 /// Profile manager with secure storage support
@@ -492,9 +497,10 @@ impl ProfileManager {
     #[cfg(feature = "keyring-storage")]
     pub fn set_secret(&self, profile_name: &str, key: &str, value: &str) -> Result<()> {
         let service = format!("vqx-{}", profile_name);
-        let entry = keyring::Entry::new(&service, key).map_err(|e| VqxError::SecretStorageFailed {
-            message: e.to_string(),
-        })?;
+        let entry =
+            keyring::Entry::new(&service, key).map_err(|e| VqxError::SecretStorageFailed {
+                message: e.to_string(),
+            })?;
 
         entry
             .set_password(value)
@@ -502,7 +508,11 @@ impl ProfileManager {
                 message: e.to_string(),
             })?;
 
-        debug!(profile = profile_name, key = key, "Stored secret in keyring");
+        debug!(
+            profile = profile_name,
+            key = key,
+            "Stored secret in keyring"
+        );
         Ok(())
     }
 
@@ -510,9 +520,10 @@ impl ProfileManager {
     #[cfg(feature = "keyring-storage")]
     pub fn get_secret(&self, profile_name: &str, key: &str) -> Result<Option<String>> {
         let service = format!("vqx-{}", profile_name);
-        let entry = keyring::Entry::new(&service, key).map_err(|e| VqxError::SecretStorageFailed {
-            message: e.to_string(),
-        })?;
+        let entry =
+            keyring::Entry::new(&service, key).map_err(|e| VqxError::SecretStorageFailed {
+                message: e.to_string(),
+            })?;
 
         match entry.get_password() {
             Ok(value) => Ok(Some(value)),
@@ -530,9 +541,10 @@ impl ProfileManager {
     #[cfg(feature = "keyring-storage")]
     pub fn delete_secret(&self, profile_name: &str, key: &str) -> Result<()> {
         let service = format!("vqx-{}", profile_name);
-        let entry = keyring::Entry::new(&service, key).map_err(|e| VqxError::SecretStorageFailed {
-            message: e.to_string(),
-        })?;
+        let entry =
+            keyring::Entry::new(&service, key).map_err(|e| VqxError::SecretStorageFailed {
+                message: e.to_string(),
+            })?;
 
         match entry.delete_credential() {
             Ok(()) => Ok(()),
@@ -615,10 +627,7 @@ mod tests {
         let loaded = ProfileStore::from_toml(&toml).unwrap();
 
         assert!(loaded.exists("test"));
-        assert_eq!(
-            loaded.get("test").unwrap().url,
-            "https://test.vantiq.com"
-        );
+        assert_eq!(loaded.get("test").unwrap().url, "https://test.vantiq.com");
     }
 
     #[test]

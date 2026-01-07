@@ -54,7 +54,10 @@ pub async fn run(
 
     if !profile.has_auth() {
         return Err(VqxError::ProfileInvalid {
-            message: format!("Profile '{}' has no authentication configured", profile_name),
+            message: format!(
+                "Profile '{}' has no authentication configured",
+                profile_name
+            ),
         });
     }
 
@@ -242,10 +245,7 @@ pub async fn run(
                 "{}",
                 style("  types/, procedures/, rules/, sources/, services/,").dim()
             );
-            println!(
-                "{}",
-                style("  data/ (for user defined type data)").dim()
-            );
+            println!("{}", style("  data/ (for user defined type data)").dim());
         }
         println!();
     }
@@ -352,7 +352,10 @@ pub fn display_help() {
     println!();
     println!("Import resources to Vantiq from a local directory.");
     println!();
-    println!("{}", style("⚠  Warning: This is a potentially destructive operation!").yellow());
+    println!(
+        "{}",
+        style("⚠  Warning: This is a potentially destructive operation!").yellow()
+    );
     println!("   Existing resources may be overwritten.");
     println!();
     println!("{}", style("PDF Reference: Import section").bold());
@@ -395,7 +398,10 @@ pub fn display_help() {
     );
     println!();
     println!("  # Import without confirmation (for scripts)");
-    println!("  {} vqx import metadata -d ./export --yes", style("$").dim());
+    println!(
+        "  {} vqx import metadata -d ./export --yes",
+        style("$").dim()
+    );
     println!();
     println!("{}", style("PDF Note:").dim());
     println!(

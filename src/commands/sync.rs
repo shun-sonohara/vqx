@@ -68,8 +68,12 @@ pub async fn run(
     verbose: bool,
 ) -> Result<SyncResult> {
     match cmd {
-        SyncCommands::Pull(args) => run_pull(args, config, profile_name, output_format, verbose).await,
-        SyncCommands::Push(args) => run_push(args, config, profile_name, output_format, verbose).await,
+        SyncCommands::Pull(args) => {
+            run_pull(args, config, profile_name, output_format, verbose).await
+        }
+        SyncCommands::Push(args) => {
+            run_push(args, config, profile_name, output_format, verbose).await
+        }
     }
 }
 
@@ -88,7 +92,10 @@ async fn run_pull(
 
     if !profile.has_auth() {
         return Err(VqxError::ProfileInvalid {
-            message: format!("Profile '{}' has no authentication configured", profile_name),
+            message: format!(
+                "Profile '{}' has no authentication configured",
+                profile_name
+            ),
         });
     }
 
@@ -107,7 +114,10 @@ async fn run_pull(
 
     // Check if directory exists and has content
     let dir_exists = output_dir.exists() && output_dir.is_dir();
-    let has_content = dir_exists && std::fs::read_dir(output_dir).map(|d| d.count() > 0).unwrap_or(false);
+    let has_content = dir_exists
+        && std::fs::read_dir(output_dir)
+            .map(|d| d.count() > 0)
+            .unwrap_or(false);
 
     // Warn about overwriting if directory has content
     if has_content && !args.force {
@@ -220,10 +230,7 @@ async fn run_pull(
     if !matches!(output_format, OutputFormat::Json) {
         println!();
         println!("{}", style("─".repeat(50)).dim());
-        println!(
-            "{} Sync pull complete",
-            style("✓").green().bold()
-        );
+        println!("{} Sync pull complete", style("✓").green().bold());
         println!("  Files: {}", stats.files_processed);
         println!("  Directory: {}", output_dir.display());
         println!();
@@ -269,7 +276,10 @@ async fn run_push(
 
     if !profile.has_auth() {
         return Err(VqxError::ProfileInvalid {
-            message: format!("Profile '{}' has no authentication configured", profile_name),
+            message: format!(
+                "Profile '{}' has no authentication configured",
+                profile_name
+            ),
         });
     }
 
@@ -505,10 +515,7 @@ async fn run_push(
     if !matches!(output_format, OutputFormat::Json) {
         println!();
         println!("{}", style("─".repeat(50)).dim());
-        println!(
-            "{} Sync push complete",
-            style("✓").green().bold()
-        );
+        println!("{} Sync push complete", style("✓").green().bold());
         println!("  Files: {}", files_count);
         println!("  Server: {}", profile.url);
         println!();

@@ -88,7 +88,11 @@ impl Normalizer {
         Ok(stats)
     }
 
-    fn normalize_directory_recursive(&self, dir: &Path, stats: &mut NormalizationStats) -> Result<()> {
+    fn normalize_directory_recursive(
+        &self,
+        dir: &Path,
+        stats: &mut NormalizationStats,
+    ) -> Result<()> {
         for entry in fs::read_dir(dir).map_err(|e| VqxError::Other(e.to_string()))? {
             let entry = entry.map_err(|e| VqxError::Other(e.to_string()))?;
             let path = entry.path();
@@ -100,7 +104,9 @@ impl Normalizer {
                     Ok(()) => stats.files_processed += 1,
                     Err(e) => {
                         stats.errors += 1;
-                        stats.error_files.push((path.display().to_string(), e.to_string()));
+                        stats
+                            .error_files
+                            .push((path.display().to_string(), e.to_string()));
                     }
                 }
             }
@@ -327,7 +333,9 @@ impl ResourceNormalizer {
                     Ok(()) => stats.files_processed += 1,
                     Err(e) => {
                         stats.errors += 1;
-                        stats.error_files.push((path.display().to_string(), e.to_string()));
+                        stats
+                            .error_files
+                            .push((path.display().to_string(), e.to_string()));
                     }
                 }
             } else if path.is_dir() {

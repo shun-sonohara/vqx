@@ -116,8 +116,9 @@ impl Config {
             if let Some(proj_dirs) = ProjectDirs::from("", "", CONFIG_DIR_NAME) {
                 Ok(proj_dirs.config_dir().to_path_buf())
             } else {
-                let home = dirs::home_dir()
-                    .ok_or_else(|| VqxError::Other("Could not determine home directory".to_string()))?;
+                let home = dirs::home_dir().ok_or_else(|| {
+                    VqxError::Other("Could not determine home directory".to_string())
+                })?;
                 Ok(home.join(format!(".{}", CONFIG_DIR_NAME)))
             }
         }
@@ -384,6 +385,8 @@ mod tests {
     fn test_normalization_config() {
         let config = NormalizationConfig::default();
         assert!(config.sort_keys);
-        assert!(config.excluded_fields.contains(&"ars_modifiedAt".to_string()));
+        assert!(config
+            .excluded_fields
+            .contains(&"ars_modifiedAt".to_string()));
     }
 }
