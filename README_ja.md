@@ -30,9 +30,22 @@ vqx は、underlying Vantiq CLI に対して、ワークフロー自動化、安
 - 破壊的操作前の確認プロンプト
 - 進捗インジケーターと詳細出力
 
-### Phase 3以降（計画中）
+### Phase 3（実装済み）
 
-- `diff` / `sync` - 環境間の比較・同期
+| コマンド | 説明 | PDF参照箇所 |
+|----------|------|-------------|
+| `diff` | 環境またはディレクトリ間のリソース比較 | - |
+| `sync pull` | リモートからローカルへエクスポート（正規化付き） | Export セクション |
+| `sync push` | 差分プレビューと確認付きでリモートへインポート | Import セクション |
+
+**主な機能:**
+- プロファイル（リモート）またはディレクトリ（ローカル）の比較
+- 比較のための自動エクスポートと正規化
+- push操作前の差分プレビュー
+- 安全のための確認プロンプト
+
+### Phase 4以降（計画中）
+
 - `safe-delete` - 確認とバックアップ付きの破壊的操作
 - `promote` - ワークフロー: export → diff → confirm → import → test
 - `run` - テストスイートとプロシージャ実行
@@ -255,6 +268,83 @@ vqx import metadata -d ./export --yes
 - ファイル数のプレビュー
 - サーバーとプロファイルの表示
 
+#### diff
+
+2つのソース（プロファイルまたはディレクトリ）間のリソースを比較。
+
+```bash
+# 2つのディレクトリを比較
+vqx diff ./local-export ./other-export
+
+# プロファイルとローカルディレクトリを比較
+vqx diff my-profile ./local-export
+
+# 2つのプロファイルを比較（リモート間）
+vqx diff dev-profile prod-profile
+
+# 完全な差分出力を表示
+vqx diff ./source ./target --full
+
+# リソースタイプでフィルタ
+vqx diff ./source ./target --resource types --resource procedures
+```
+
+diffオプション:
+
+| オプション | 説明 |
+|-----------|------|
+| `--full` | 完全な差分出力を表示（サマリーだけでなく） |
+| `--resource` | 特定のリソースタイプにフィルタ |
+
+**機能:**
+- プロファイルから自動エクスポートして比較
+- JSON正規化により正確な比較を実現
+- 追加、削除、変更されたリソースを表示
+- 見やすいカラー出力
+
+#### sync
+
+ローカルディレクトリとVantiqサーバー間のリソースを同期。
+
+**sync pull** - リモートからローカルへエクスポート:
+
+```bash
+# サーバーからローカルディレクトリへ pull
+vqx sync pull -d ./local
+
+# 強制上書き（確認スキップ）
+vqx sync pull -d ./local --force
+```
+
+**sync push** - ローカルからリモートへインポート:
+
+```bash
+# 差分プレビューと確認付きでpush
+vqx sync push -d ./local
+
+# ドライラン - pushされる内容を表示
+vqx sync push -d ./local --dry-run
+
+# 確認をスキップ（CI/CD用）
+vqx sync push -d ./local --yes
+```
+
+syncオプション:
+
+| サブコマンド | オプション | 説明 |
+|-------------|-----------|------|
+| `pull` | `-d, --directory` | 同期先のローカルディレクトリ |
+| `pull` | `--force` | 確認なしで強制上書き |
+| `push` | `-d, --directory` | 同期元のローカルディレクトリ |
+| `push` | `--dry-run` | 変更を適用せずに表示 |
+| `push` | `-y, --yes` | 確認プロンプトをスキップ |
+
+**機能:**
+- push前の自動差分プレビュー
+- pull時のJSON正規化
+- 安全のための確認プロンプト
+- 進捗インジケーター
+
 ## PDF マッピング
 
 ### 接続オプション
@@ -321,11 +411,13 @@ src/
   underlying.rs     # CLI実行層（PDFベース）
   commands/
     mod.rs
+    diff.rs         # 環境比較
     doctor.rs       # 環境チェック
     export.rs       # 正規化付きエクスポート
     import.rs       # 安全確認付きインポート
     passthrough.rs  # CLI直接実行
     profile.rs      # プロファイル管理
+    sync.rs         # 双方向同期（pull/push）
 ```
 
 ### 新しいコマンドの追加

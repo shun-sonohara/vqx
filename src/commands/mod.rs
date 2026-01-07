@@ -11,9 +11,11 @@ pub mod profile;
 pub mod export;
 pub mod import;
 
-// Phase 3+ placeholders
-// pub mod diff;
-// pub mod sync;
+// Phase 3: Diff/Sync
+pub mod diff;
+pub mod sync;
+
+// Phase 4+ placeholders
 // pub mod safe_delete;
 // pub mod promote;
 // pub mod run;

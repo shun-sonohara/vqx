@@ -115,21 +115,35 @@ async fn main() -> Result<()> {
             }
         }
 
-        // Phase 3+ commands - not yet implemented
-        Commands::Diff(_) => {
-            println!(
-                "{} Diff command is not yet implemented (Phase 3).",
-                style("⚠").yellow()
-            );
-            1
+        // Phase 3: Diff/Sync
+        Commands::Diff(args) => {
+            let result = commands::diff::run(args, &config, cli.output, cli.verbose).await?;
+
+            if result.success && !result.has_changes() {
+                0
+            } else if result.success {
+                // Changes found, but operation succeeded
+                0
+            } else {
+                1
+            }
         }
 
-        Commands::Sync(_) => {
-            println!(
-                "{} Sync command is not yet implemented (Phase 3).",
-                style("⚠").yellow()
-            );
-            1
+        Commands::Sync(cmd) => {
+            let result = commands::sync::run(
+                cmd,
+                &config,
+                cli.profile.as_deref(),
+                cli.output,
+                cli.verbose,
+            )
+            .await?;
+
+            if result.success {
+                0
+            } else {
+                1
+            }
         }
 
         Commands::SafeDelete(_) => {

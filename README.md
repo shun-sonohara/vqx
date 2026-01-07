@@ -30,9 +30,22 @@ vqx provides workflow automation, safety guards, and developer-friendly features
 - Confirmation prompts before destructive operations
 - Progress indicators and detailed output
 
-### Phase 3+ (Planned)
+### Phase 3 (Implemented)
 
-- `diff` / `sync` - Compare and synchronize environments
+| Command | Description | PDF Reference |
+|---------|-------------|---------------|
+| `diff` | Compare resources between environments or directories | - |
+| `sync pull` | Export from remote to local with normalization | Export section |
+| `sync push` | Import to remote with diff preview and confirmation | Import section |
+
+**Key Features:**
+- Compare profiles (remote) or directories (local)
+- Automatic export and normalization for comparison
+- Diff preview before push operations
+- Confirmation prompts for safety
+
+### Phase 4+ (Planned)
+
 - `safe-delete` - Destructive operations with confirmation and backup
 - `promote` - Workflow: export -> diff -> confirm -> import -> test
 - `run` - Test suites and procedures
@@ -255,6 +268,83 @@ Import options (based on PDF "Import" section):
 - File count preview
 - Server and profile display
 
+#### diff
+
+Compare resources between two sources (profiles or directories).
+
+```bash
+# Compare two directories
+vqx diff ./local-export ./other-export
+
+# Compare a profile with a local directory
+vqx diff my-profile ./local-export
+
+# Compare two profiles (remote-to-remote)
+vqx diff dev-profile prod-profile
+
+# Show full diff output
+vqx diff ./source ./target --full
+
+# Filter by resource type
+vqx diff ./source ./target --resource types --resource procedures
+```
+
+Diff options:
+
+| Option | Description |
+|--------|-------------|
+| `--full` | Show complete diff output (not just summary) |
+| `--resource` | Filter to specific resource types |
+
+**Features:**
+- Automatically exports from profiles for comparison
+- JSON normalization ensures accurate comparisons
+- Shows added, removed, and modified resources
+- Color-coded output for easy reading
+
+#### sync
+
+Synchronize resources between local directories and Vantiq servers.
+
+**sync pull** - Export from remote to local:
+
+```bash
+# Pull from server to local directory
+vqx sync pull -d ./local
+
+# Force overwrite (skip confirmation)
+vqx sync pull -d ./local --force
+```
+
+**sync push** - Import from local to remote:
+
+```bash
+# Push with diff preview and confirmation
+vqx sync push -d ./local
+
+# Dry run - show what would be pushed
+vqx sync push -d ./local --dry-run
+
+# Skip confirmation (for CI/CD)
+vqx sync push -d ./local --yes
+```
+
+Sync options:
+
+| Subcommand | Option | Description |
+|------------|--------|-------------|
+| `pull` | `-d, --directory` | Local directory to sync to |
+| `pull` | `--force` | Force overwrite without confirmation |
+| `push` | `-d, --directory` | Local directory to sync from |
+| `push` | `--dry-run` | Show changes without applying |
+| `push` | `-y, --yes` | Skip confirmation prompt |
+
+**Features:**
+- Automatic diff preview before push
+- JSON normalization on pull
+- Confirmation prompts for safety
+- Progress indicators
+
 ## PDF Mapping
 
 ### Connection Options
@@ -321,11 +411,13 @@ src/
   underlying.rs     # CLI execution layer (PDF-based)
   commands/
     mod.rs
+    diff.rs         # Environment comparison
     doctor.rs       # Environment checks
     export.rs       # Export with normalization
     import.rs       # Import with safety confirmations
     passthrough.rs  # Direct CLI access
     profile.rs      # Profile management
+    sync.rs         # Bidirectional sync (pull/push)
 ```
 
 ### Adding New Commands
