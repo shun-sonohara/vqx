@@ -98,13 +98,28 @@ impl Default for Config {
 
 impl Config {
     /// Get the config directory path
+    /// Uses ~/.config/vqx on Unix (macOS/Linux) for consistency with documentation
+    /// Uses %APPDATA%\vqx on Windows
     pub fn config_dir() -> Result<PathBuf> {
-        if let Some(proj_dirs) = ProjectDirs::from("", "", CONFIG_DIR_NAME) {
-            Ok(proj_dirs.config_dir().to_path_buf())
-        } else {
+        // On Unix systems (macOS/Linux), use ~/.config/vqx for XDG-style config
+        // This matches the documentation and is more familiar to CLI users
+        #[cfg(unix)]
+        {
             let home = dirs::home_dir()
                 .ok_or_else(|| VqxError::Other("Could not determine home directory".to_string()))?;
-            Ok(home.join(format!(".{}", CONFIG_DIR_NAME)))
+            Ok(home.join(".config").join(CONFIG_DIR_NAME))
+        }
+
+        // On Windows, use the standard AppData location
+        #[cfg(windows)]
+        {
+            if let Some(proj_dirs) = ProjectDirs::from("", "", CONFIG_DIR_NAME) {
+                Ok(proj_dirs.config_dir().to_path_buf())
+            } else {
+                let home = dirs::home_dir()
+                    .ok_or_else(|| VqxError::Other("Could not determine home directory".to_string()))?;
+                Ok(home.join(format!(".{}", CONFIG_DIR_NAME)))
+            }
         }
     }
 
