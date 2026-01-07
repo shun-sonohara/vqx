@@ -141,30 +141,55 @@ async fn main() -> Result<()> {
             }
         }
 
-        Commands::SafeDelete(_) => {
-            println!(
-                "{} SafeDelete command is not yet implemented (Phase 4).",
-                style("⚠").yellow()
-            );
-            println!("Use 'vqx passthrough delete ...' with caution for now.");
-            1
+        Commands::SafeDelete(args) => {
+            let result = commands::safe_delete::run(
+                args,
+                &config,
+                cli.profile.as_deref(),
+                cli.output,
+                cli.verbose,
+            )
+            .await?;
+
+            if result.success {
+                0
+            } else {
+                1
+            }
         }
 
-        Commands::Promote(_) => {
-            println!(
-                "{} Promote command is not yet implemented (Phase 4).",
-                style("⚠").yellow()
-            );
-            1
+        Commands::Promote(args) => {
+            let result = commands::promote::run(
+                args,
+                &config,
+                cli.profile.as_deref(),
+                cli.output,
+                cli.verbose,
+            )
+            .await?;
+
+            if result.success {
+                0
+            } else {
+                1
+            }
         }
 
-        Commands::Run(_) => {
-            println!(
-                "{} Run command is not yet implemented (Phase 4).",
-                style("⚠").yellow()
-            );
-            println!("Use 'vqx passthrough run ...' for now.");
-            1
+        Commands::Run(cmd) => {
+            let result = commands::run::run(
+                cmd,
+                &config,
+                cli.profile.as_deref(),
+                cli.output,
+                cli.verbose,
+            )
+            .await?;
+
+            if result.success {
+                0
+            } else {
+                1
+            }
         }
     };
 

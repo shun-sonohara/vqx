@@ -15,7 +15,7 @@ pub mod import;
 pub mod diff;
 pub mod sync;
 
-// Phase 4+ placeholders
-// pub mod safe_delete;
-// pub mod promote;
-// pub mod run;
+// Phase 4: Safe operations
+pub mod promote;
+pub mod run;
+pub mod safe_delete;
