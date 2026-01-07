@@ -5,8 +5,8 @@
 #   macOS/Linux: ~/.config/vqx/profiles.toml
 #   Windows:     %APPDATA%\vqx\profiles.toml
 #
-# PDF Reference: CLI Reference Guide - "Profile" section
-# PDF参照: CLI Reference Guide - 「Profile」セクション
+# Reference: Vantiq CLI Reference Guide (https://dev.vantiq.com/docs/system/cli/) - "Profile" section
+# 参照: Vantiq CLI Reference Guide (https://dev.vantiq.com/docs/system/cli/) - 「Profile」セクション
 #
 # Original Vantiq CLI uses Groovy format (~/.vantiq/profile):
 # 元の Vantiq CLI は Groovy 形式を使用 (~/.vantiq/profile):
@@ -30,28 +30,28 @@ default_profile = "dev"
 # =============================================================================
 
 [profiles.dev]
-# PDF: "url = '...'" -> maps to "-b <baseURL>"
-# PDF: "url = '...'" -> "-b <baseURL>" にマッピング
-# PDF: "Default: https://dev.vantiq.com"
-# PDF: デフォルト: https://dev.vantiq.com
+# CLI Reference: "url = '...'" -> maps to "-b <baseURL>"
+# CLI Reference: "url = '...'" -> "-b <baseURL>" にマッピング
+# Default: https://dev.vantiq.com
+# デフォルト: https://dev.vantiq.com
 url = "https://dev.vantiq.com"
 
-# PDF: "token = '...'" -> maps to "-t <token>"
-# PDF: "token = '...'" -> "-t <token>" にマッピング
-# PDF Note: "public clouds and any server using keycloak access
-#           require use of the token option"
-# PDF注記: パブリッククラウドおよびkeycloak認証サーバーでは
-#          tokenオプションが必須
+# CLI Reference: "token = '...'" -> maps to "-t <token>"
+# CLI Reference: "token = '...'" -> "-t <token>" にマッピング
+# Note: "public clouds and any server using keycloak access
+#       require use of the token option"
+# 注記: パブリッククラウドおよびkeycloak認証サーバーでは
+#       tokenオプションが必須
 #
 # SECURITY: In production, use secure storage instead of plain text:
 # セキュリティ: 本番環境では平文ではなく安全なストレージを使用:
 #   vqx profile set dev --token YOUR_TOKEN --secure
 token = "YOUR_ACCESS_TOKEN_HERE"
 
-# PDF: "-trust" flag
-# PDF: "-trust" フラグ
-# PDF: "Force SSL options to trust remote server certificate and host name"
-# PDF: リモートサーバー証明書とホスト名を信頼するSSLオプションを強制
+# CLI Reference: "-trust" flag
+# CLI Reference: "-trust" フラグ
+# "Force SSL options to trust remote server certificate and host name"
+# リモートサーバー証明書とホスト名を信頼するSSLオプションを強制
 trust_ssl = false
 
 # vqx extension: Description for this profile
@@ -86,15 +86,15 @@ description = "Production environment - handle with care"
 # =============================================================================
 
 [profiles.edge]
-# PDF: "url = '...'"
+# CLI Reference: "url = '...'"
 url = "https://edge.example.com:8080"
 
-# PDF: "username = '...'" -> maps to "-u <username>"
-# PDF: "username = '...'" -> "-u <username>" にマッピング
-# PDF: "password = '...'" -> maps to "-p <password>"
-# PDF: "password = '...'" -> "-p <password>" にマッピング
-# PDF Note: "username/password can only be used for Edge servers"
-# PDF注記: username/passwordはエッジサーバーでのみ使用可能
+# CLI Reference: "username = '...'" -> maps to "-u <username>"
+# CLI Reference: "username = '...'" -> "-u <username>" にマッピング
+# CLI Reference: "password = '...'" -> maps to "-p <password>"
+# CLI Reference: "password = '...'" -> "-p <password>" にマッピング
+# Note: "username/password can only be used for Edge servers"
+# 注記: username/passwordはエッジサーバーでのみ使用可能
 username = "admin"
 
 # SECURITY: Store password in secure storage in production
@@ -102,12 +102,12 @@ username = "admin"
 # password = "YOUR_PASSWORD_HERE"
 use_secure_storage = true
 
-# PDF: "namespace = '...'" -> maps to "-n <namespace>"
-# PDF: "namespace = '...'" -> "-n <namespace>" にマッピング
-# PDF Note: "the namespace option can only be used with username/password;
-#           it cannot be used with long-lived access tokens"
-# PDF注記: namespaceオプションはusername/passwordでのみ使用可能、
-#          長期アクセストークンでは使用不可
+# CLI Reference: "namespace = '...'" -> maps to "-n <namespace>"
+# CLI Reference: "namespace = '...'" -> "-n <namespace>" にマッピング
+# Note: "the namespace option can only be used with username/password;
+#       it cannot be used with long-lived access tokens"
+# 注記: namespaceオプションはusername/passwordでのみ使用可能、
+#       長期アクセストークンでは使用不可
 namespace = "EdgeApp"
 
 # Trust self-signed certificates (common for Edge servers)
@@ -129,8 +129,8 @@ description = "Testing environment"
 # =============================================================================
 # Advanced Profile with Client Options (Future)
 # クライアントオプション付き高度なプロファイル（将来）
-# Based on PDF "HttpClient options" section
-# PDF「HttpClient options」セクションに基づく
+# Based on CLI Reference Guide "HttpClient options" section
+# CLI Reference Guide「HttpClient options」セクションに基づく
 # =============================================================================
 
 # [profiles.advanced]

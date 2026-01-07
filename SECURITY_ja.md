@@ -71,7 +71,7 @@ vqx は破壊的な CLI 操作を安全ガードでラップします:
 
 ### 保護対象コマンド
 
-CLI Reference Guide PDF に基づく:
+[Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) に基づく:
 - `delete <resource> <resourceId>`
 - `deleteMatching <resource> <query>`
 - `undeploy <configurationName>`
@@ -134,13 +134,13 @@ CLI Reference Guide PDF に基づく:
     args=["metadata", "-d", "./export"]
 ```
 
-## underlying CLI の仕様制約（PDF準拠）
+## underlying CLI の仕様制約（CLI Reference Guide 準拠）
 
-vqx は以下の PDF 記載の制約をコードレベルで強制します:
+vqx は以下の [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) 記載の制約をコードレベルで強制します:
 
 ### 認証方式の制約
 
-| 制約 | PDF 記載箇所 | vqx での実装 |
+| 制約 | 記載箇所 | vqx での実装 |
 |------|-------------|-------------|
 | パブリッククラウドではトークン必須 | Profile セクション | `Profile.validate()` で警告 |
 | username/password は Edge サーバーのみ | Profile セクション注記 | プロファイル作成時に注意表示 |
@@ -149,7 +149,7 @@ vqx は以下の PDF 記載の制約をコードレベルで強制します:
 
 ### 非推奨コマンド
 
-| コマンド | 代替 | PDF 記載 |
+| コマンド | 代替 | CLI Reference 記載 |
 |----------|------|----------|
 | `execute` | `run procedure` | 「deprecated in favor of the run procedure command as of release 1.37」 |
 

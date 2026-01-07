@@ -6,22 +6,22 @@ Vantiq CLI を安全かつ高機能にラップする Rust 製 CLI ツール。
 
 vqx は、underlying Vantiq CLI に対して、ワークフロー自動化、安全ガード、開発者フレンドリーな機能を提供します。
 
-**準拠ドキュメント**: Vantiq CLI Reference Guide (PDF)
+**準拠ドキュメント**: [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)
 
 ## 機能
 
 ### Phase 1（実装済み）
 
-| コマンド | 説明 | PDF参照箇所 |
-|----------|------|-------------|
+| コマンド | 説明 | 参照箇所 |
+|----------|------|----------|
 | `doctor` | 環境前提条件のチェック | Prerequisites, Installation セクション |
 | `profile` | 接続プロファイル管理 | Profile, Command Line Options セクション |
 | `passthrough` | CLI直接実行 | 全コマンド |
 
 ### Phase 2（実装済み）
 
-| コマンド | 説明 | PDF参照箇所 |
-|----------|------|-------------|
+| コマンド | 説明 | 参照箇所 |
+|----------|------|----------|
 | `export` | JSON正規化付きリソースエクスポート | Export セクション |
 | `import` | 安全確認付きリソースインポート | Import セクション |
 
@@ -32,8 +32,8 @@ vqx は、underlying Vantiq CLI に対して、ワークフロー自動化、安
 
 ### Phase 3（実装済み）
 
-| コマンド | 説明 | PDF参照箇所 |
-|----------|------|-------------|
+| コマンド | 説明 | 参照箇所 |
+|----------|------|----------|
 | `diff` | 環境またはディレクトリ間のリソース比較 | - |
 | `sync pull` | リモートからローカルへエクスポート（正規化付き） | Export セクション |
 | `sync push` | 差分プレビューと確認付きでリモートへインポート | Import セクション |
@@ -52,7 +52,7 @@ vqx は、underlying Vantiq CLI に対して、ワークフロー自動化、安
 
 ## 前提条件
 
-CLI Reference Guide PDF「Prerequisites」セクションより:
+[Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)「Prerequisites」セクションより:
 
 > The Vantiq CLI is a Java (Groovy) application and requires an installation of Java 11.
 
@@ -149,7 +149,7 @@ cargo build --release
 # Java と CLI が正しくインストールされているか確認
 vqx doctor
 
-# 詳細出力（PDF参照箇所付き）
+# 詳細出力（リファレンス参照付き）
 vqx doctor --verbose
 ```
 
@@ -166,7 +166,7 @@ vqx profile set myprofile \
     --description "開発環境"
 ```
 
-**PDF注記**: 「public clouds and any server using keycloak access require use of the token option」（パブリッククラウドおよびkeycloak認証を使用するサーバーではtokenオプションが必須）
+**注記**: 「public clouds and any server using keycloak access require use of the token option」（パブリッククラウドおよびkeycloak認証を使用するサーバーではtokenオプションが必須）
 
 ### 3. CLIの使用
 
@@ -205,9 +205,9 @@ description = "開発環境"
 use_secure_storage = false            # true = キーリングに認証情報を保存
 ```
 
-**認証オプション（PDFに基づく）:**
+**認証オプション（[CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) に基づく）:**
 
-| フィールド | PDFフラグ | 説明 |
+| フィールド | CLI フラグ | 説明 |
 |-----------|----------|------|
 | `url` | `-b` | Vantiq サーバー URL |
 | `token` | `-t` | アクセストークン（パブリッククラウド必須） |
@@ -343,9 +343,9 @@ vqx profile export <file>     # プロファイルをファイルにエクスポ
 vqx profile import <file>     # ファイルからプロファイルをインポート
 ```
 
-プロファイルオプション（PDF「Command Line Options」に基づく）:
+プロファイルオプション（[CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)「Command Line Options」に基づく）:
 
-| オプション | PDF フラグ | 説明 |
+| オプション | CLI フラグ | 説明 |
 |-----------|-----------|------|
 | `--url` | `-b` | ベースURL（デフォルト: https://dev.vantiq.com） |
 | `--username` | `-u` | ユーザー名（Edgeサーバーのみ） |
@@ -390,9 +390,9 @@ vqx export metadata --include types --include procedures
 vqx export metadata -d ./export --normalize false
 ```
 
-エクスポートオプション（PDF「Export」セクションに基づく）:
+エクスポートオプション（[CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)「Export」セクションに基づく）:
 
-| オプション | PDF フラグ | 説明 |
+| オプション | CLI フラグ | 説明 |
 |-----------|-----------|------|
 | `-d, --directory` | `-d` | 出力ディレクトリ |
 | `--chunk` | `-chunk` | 大量エクスポート時のチャンクサイズ |
@@ -429,9 +429,9 @@ vqx import metadata --include types --exclude rules
 vqx import metadata -d ./export --yes
 ```
 
-インポートオプション（PDF「Import」セクションに基づく）:
+インポートオプション（[CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)「Import」セクションに基づく）:
 
-| オプション | PDF フラグ | 説明 |
+| オプション | CLI フラグ | 説明 |
 |-----------|-----------|------|
 | `-d, --directory` | `-d` | 入力ディレクトリ |
 | `--chunk` | `-chunk` | 大量インポート時のチャンクサイズ |
@@ -522,11 +522,11 @@ syncオプション:
 - 安全のための確認プロンプト
 - 進捗インジケーター
 
-## PDF マッピング
+## CLI Reference マッピング
 
 ### 接続オプション
 
-| vqx | PDF CLI フラグ | 説明 |
+| vqx | CLI フラグ | 説明 |
 |-----|---------------|------|
 | `--profile` | `-s` | プロファイル名 |
 | Profile.url | `-b` | ベースURL |
@@ -536,7 +536,7 @@ syncオプション:
 | Profile.namespace | `-n` | ターゲット名前空間 |
 | Profile.trust_ssl | `-trust` | SSL信頼 |
 
-### 重要な PDF 注記
+### 重要な注記（[CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) より）
 
 1. **Token vs Password**: 「If a password is specified, it is used instead of the token.」（パスワードが指定されている場合、トークンより優先される）
 
@@ -585,7 +585,7 @@ src/
   error.rs          # エラー型
   normalizer.rs     # git diff 用 JSON 正規化
   profile.rs        # プロファイル管理
-  underlying.rs     # CLI実行層（PDFベース）
+  underlying.rs     # CLI実行層
   commands/
     mod.rs
     diff.rs         # 環境比較
@@ -602,7 +602,7 @@ src/
 1. `src/cli.rs` でコマンドを定義
 2. `src/commands/` に実装を作成
 3. `src/main.rs` のディスパッチに追加
-4. コードコメントに PDF マッピングを文書化
+4. コードコメントに CLI Reference マッピングを文書化
 
 ## ライセンス
 
