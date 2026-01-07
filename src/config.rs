@@ -4,6 +4,8 @@
 //! the underlying CLI's profile system.
 
 use crate::error::{Result, VqxError};
+#[cfg(windows)]
+use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
