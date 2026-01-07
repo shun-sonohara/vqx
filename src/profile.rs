@@ -12,6 +12,8 @@
 //! - Interactive profile creation
 
 use crate::error::{Result, VqxError};
+#[cfg(windows)]
+use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
