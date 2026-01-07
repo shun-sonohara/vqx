@@ -18,9 +18,20 @@ vqx は、underlying Vantiq CLI に対して、ワークフロー自動化、安
 | `profile` | 接続プロファイル管理 | Profile, Command Line Options セクション |
 | `passthrough` | CLI直接実行 | 全コマンド |
 
-### Phase 2以降（計画中）
+### Phase 2（実装済み）
 
-- `export` / `import` - JSON正規化による git diff しやすい出力
+| コマンド | 説明 | PDF参照箇所 |
+|----------|------|-------------|
+| `export` | JSON正規化付きリソースエクスポート | Export セクション |
+| `import` | 安全確認付きリソースインポート | Import セクション |
+
+**主な機能:**
+- git diff しやすい JSON 正規化（キーソート、配列安定化、タイムスタンプ除去）
+- 破壊的操作前の確認プロンプト
+- 進捗インジケーターと詳細出力
+
+### Phase 3以降（計画中）
+
 - `diff` / `sync` - 環境間の比較・同期
 - `safe-delete` - 確認とバックアップ付きの破壊的操作
 - `promote` - ワークフロー: export → diff → confirm → import → test
@@ -164,6 +175,86 @@ vqx passthrough export metadata -d ./export
 vqx --profile prod passthrough run procedure Utils.getNamespaceAndProfiles
 ```
 
+#### export
+
+Vantiq からリソースをエクスポート。JSON 正規化により git diff しやすい出力を生成。
+
+```bash
+# メタデータをエクスポート（デフォルト）
+vqx export -d ./export
+
+# タイプを指定してエクスポート
+vqx export metadata -d ./export
+vqx export data -d ./export
+
+# プロジェクトをエクスポート
+vqx export project --project MyProject -d ./export
+
+# チャンク指定（大量エクスポート時）
+vqx export metadata -d ./export --chunk 5000
+
+# 特定タイプのみエクスポート
+vqx export metadata --include types --include procedures
+
+# JSON正規化を無効化
+vqx export metadata -d ./export --normalize false
+```
+
+エクスポートオプション（PDF「Export」セクションに基づく）:
+
+| オプション | PDF フラグ | 説明 |
+|-----------|-----------|------|
+| `-d, --directory` | `-d` | 出力ディレクトリ |
+| `--chunk` | `-chunk` | 大量エクスポート時のチャンクサイズ |
+| `--include` | `-include` | 含めるタイプ |
+| `--exclude` | `-exclude` | 除外するタイプ |
+| `--until` | `-until` | 指定タイムスタンプまでのデータをエクスポート |
+| `--ignore-errors` | `-ignoreErrors` | エクスポート中のエラーを無視 |
+| `--normalize` | (vqx拡張) | git diff 用 JSON 正規化（デフォルト: true） |
+
+**JSON 正規化**（vqx 拡張機能）:
+- オブジェクトキーをアルファベット順にソート
+- 配列を `name` または `ars_version` で安定ソート
+- 変動するタイムスタンプを除去（`ars_createdAt`, `ars_modifiedAt` など）
+- 一貫したインデント（2スペース）
+
+#### import
+
+Vantiq へリソースをインポート。安全確認機能付き。
+
+```bash
+# メタデータをインポート（確認プロンプトあり）
+vqx import metadata -d ./export
+
+# データをインポート
+vqx import data -d ./data
+
+# チャンク指定でインポート
+vqx import metadata -d ./export --chunk 5000
+
+# 特定タイプのみインポート
+vqx import metadata --include types --exclude rules
+
+# 確認をスキップ（CI/CD用）
+vqx import metadata -d ./export --yes
+```
+
+インポートオプション（PDF「Import」セクションに基づく）:
+
+| オプション | PDF フラグ | 説明 |
+|-----------|-----------|------|
+| `-d, --directory` | `-d` | 入力ディレクトリ |
+| `--chunk` | `-chunk` | 大量インポート時のチャンクサイズ |
+| `--include` | `-include` | 含めるタイプ |
+| `--exclude` | `-exclude` | 除外するタイプ |
+| `--ignore` | `-ignore` | 無視するリソースタイプ |
+| `-y, --yes` | (vqx拡張) | 確認プロンプトをスキップ |
+
+**安全機能**（vqx 拡張機能）:
+- インポート前の確認プロンプト（誤操作による上書きを防止）
+- ファイル数のプレビュー
+- サーバーとプロファイルの表示
+
 ## PDF マッピング
 
 ### 接続オプション
@@ -225,13 +316,16 @@ src/
   cli.rs            # CLIコマンド定義（clap）
   config.rs         # グローバル設定
   error.rs          # エラー型
+  normalizer.rs     # git diff 用 JSON 正規化
   profile.rs        # プロファイル管理
   underlying.rs     # CLI実行層（PDFベース）
   commands/
     mod.rs
     doctor.rs       # 環境チェック
-    profile.rs      # プロファイル管理
+    export.rs       # 正規化付きエクスポート
+    import.rs       # 安全確認付きインポート
     passthrough.rs  # CLI直接実行
+    profile.rs      # プロファイル管理
 ```
 
 ### 新しいコマンドの追加
