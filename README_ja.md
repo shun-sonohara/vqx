@@ -354,16 +354,26 @@ vqx profile import <file>     # ファイルからプロファイルをインポ
 | `--namespace` | `-n` | ターゲット名前空間（username/passwordのみ） |
 | `--trust-ssl` | `-trust` | SSL証明書を信頼 |
 
-#### passthrough
+#### CLI 直接実行
 
-underlying CLI に直接コマンドを渡す。
+認識されないコマンドは自動的に underlying Vantiq CLI に渡されます。
 
 ```bash
-vqx passthrough list types
-vqx passthrough find procedures MyProc
-vqx passthrough export metadata -d ./export
-vqx --profile prod passthrough run procedure Utils.getNamespaceAndProfiles
+# これらのコマンドは Vantiq CLI に直接渡されます
+vqx list types
+vqx find procedures MyProc
+vqx select types
+vqx --profile prod run procedure Utils.getNamespaceAndProfiles
+
+# プロファイル指定
+vqx --profile dev list types
 ```
+
+> **注意**: `passthrough` サブコマンドは非推奨ですが、後方互換性のため引き続き使用できます:
+> ```bash
+> vqx passthrough list types  # 旧形式（引き続き動作）
+> vqx list types              # 新形式（推奨）
+> ```
 
 #### export
 
