@@ -71,6 +71,7 @@ async fn main() -> Result<()> {
         }
 
         Commands::Passthrough(args) => {
+            // Deprecated: users should use direct commands like `vqx list types`
             if args.args.is_empty() {
                 commands::passthrough::display_help();
                 0
@@ -78,6 +79,13 @@ async fn main() -> Result<()> {
                 commands::passthrough::run(args, &config, cli.profile.as_deref(), cli.verbose)
                     .await?
             }
+        }
+
+        Commands::External(args) => {
+            // Direct CLI access: `vqx list types` -> `vantiq list types`
+            let passthrough_args = cli::PassthroughArgs { args: args.clone() };
+            commands::passthrough::run(&passthrough_args, &config, cli.profile.as_deref(), cli.verbose)
+                .await?
         }
 
         // Phase 2: Export/Import

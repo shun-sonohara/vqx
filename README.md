@@ -354,16 +354,26 @@ Profile options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/syst
 | `--namespace` | `-n` | Target namespace (username/password only) |
 | `--trust-ssl` | `-trust` | Trust SSL certificates |
 
-#### passthrough
+#### Direct CLI Commands
 
-Pass commands directly to the underlying CLI.
+Any unrecognized command is passed directly to the underlying Vantiq CLI.
 
 ```bash
-vqx passthrough list types
-vqx passthrough find procedures MyProc
-vqx passthrough export metadata -d ./export
-vqx --profile prod passthrough run procedure Utils.getNamespaceAndProfiles
+# These commands are passed directly to the Vantiq CLI
+vqx list types
+vqx find procedures MyProc
+vqx select types
+vqx --profile prod run procedure Utils.getNamespaceAndProfiles
+
+# With profile
+vqx --profile dev list types
 ```
+
+> **Note**: The `passthrough` subcommand is deprecated but still works for backward compatibility:
+> ```bash
+> vqx passthrough list types  # old style (still works)
+> vqx list types              # new style (recommended)
+> ```
 
 #### export
 

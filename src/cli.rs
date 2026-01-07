@@ -79,10 +79,12 @@ pub enum Commands {
     #[command(subcommand)]
     Profile(ProfileCommands),
 
-    /// Pass commands directly to the underlying CLI
+    /// Pass commands directly to the underlying CLI (deprecated)
     ///
-    /// Use this for debugging or accessing CLI features not yet wrapped by vqx.
-    /// All arguments after "--" are passed directly to the CLI.
+    /// Note: This command is deprecated. You can now run CLI commands directly:
+    ///   vqx list types          (new, recommended)
+    ///   vqx passthrough list types  (old, still works)
+    #[command(hide = true)]
     Passthrough(PassthroughArgs),
 
     // =========================================================================
@@ -129,6 +131,18 @@ pub enum Commands {
     /// Wraps PDF's "run testsuite" and "run procedure" commands
     #[command(subcommand)]
     Run(RunCommands),
+
+    // =========================================================================
+    // Direct CLI access (external subcommand)
+    // =========================================================================
+    /// Any unrecognized command is passed directly to the underlying Vantiq CLI
+    ///
+    /// Examples:
+    ///   vqx list types
+    ///   vqx find procedures MyProc
+    ///   vqx select types
+    #[command(external_subcommand)]
+    External(Vec<String>),
 }
 
 // =============================================================================
