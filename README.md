@@ -44,11 +44,21 @@ vqx provides workflow automation, safety guards, and developer-friendly features
 - Diff preview before push operations
 - Confirmation prompts for safety
 
-### Phase 4+ (Planned)
+### Phase 4 (Implemented)
 
-- `safe-delete` - Destructive operations with confirmation and backup
-- `promote` - Workflow: export -> diff -> confirm -> import -> test
-- `run` - Test suites and procedures
+| Command | Description | Reference |
+|---------|-------------|-----------|
+| `run test` | Run a single test | Run section |
+| `run testsuite` | Run a test suite | Run section |
+| `run procedure` | Run a procedure with parameters | Run section |
+| `safe-delete` | Delete with backup and confirmation | Delete section |
+| `promote` | Promote resources between environments | - |
+
+**Key Features:**
+- Automatic backup before deletion (stored in `~/.local/share/vqx/backups`)
+- Dry-run mode for safe-delete
+- Limit protection for mass deletions (100 items default)
+- Environment promotion workflow: export → diff → confirm → import → test
 
 ## Prerequisites
 
@@ -526,6 +536,116 @@ Sync options:
 - Confirmation prompts for safety
 - Progress indicators
 
+#### run
+
+Run tests, test suites, or procedures on Vantiq.
+
+```bash
+# Run a single test
+vqx run test MyTest
+
+# Run a test suite
+vqx run testsuite MyTestSuite
+
+# Run a test suite starting from a specific test
+vqx run testsuite MyTestSuite --start-from SpecificTest
+
+# Run a procedure
+vqx run procedure MyProcedure
+
+# Run a procedure with parameters
+vqx run procedure MyProcedure param1:value1 param2:value2
+```
+
+Run options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Run" section):
+
+| Subcommand | Option | Description |
+|------------|--------|-------------|
+| `test` | `<name>` | Test name to run |
+| `testsuite` | `<name>` | Test suite name |
+| `testsuite` | `--start-from` | Start from specific test |
+| `procedure` | `<name>` | Procedure name |
+| `procedure` | `[params...]` | Parameters as `name:value` pairs |
+
+#### safe-delete
+
+Safely delete resources with backup and confirmation.
+
+```bash
+# Delete a single resource (with confirmation and backup)
+vqx safe-delete types MyType
+
+# Delete with a query (deleteMatching)
+vqx safe-delete types '{"name": {"$regex": "Test.*"}}'
+
+# Dry run - preview what would be deleted
+vqx safe-delete types MyType --dry-run
+
+# Skip backup
+vqx safe-delete types MyType --no-backup
+
+# Skip confirmation
+vqx safe-delete types MyType --yes
+
+# Force delete more than 100 items
+vqx safe-delete types '{"obsolete": true}' --force
+```
+
+Safe-delete options:
+
+| Option | Description |
+|--------|-------------|
+| `--dry-run` | Preview what would be deleted without actually deleting |
+| `--no-backup` | Skip automatic backup |
+| `-y, --yes` | Skip confirmation prompt |
+| `--force` | Allow deleting more than 100 items |
+
+**Safety Features:**
+- Automatic backup before deletion (stored in `~/.local/share/vqx/backups/`)
+- Confirmation prompt showing items to be deleted
+- Limit of 100 items for deleteMatching (use `--force` to override)
+- Dry-run mode for safe preview
+
+#### promote
+
+Promote resources from one environment to another.
+
+```bash
+# Promote from dev to prod
+vqx promote --from dev --to prod
+
+# Promote without showing diff
+vqx promote --from dev --to prod --no-diff
+
+# Promote and run test suite after
+vqx promote --from dev --to prod --testsuite SmokeTests
+
+# Promote and run procedure after
+vqx promote --from dev --to prod --procedure ValidateDeployment
+
+# Skip all confirmations (for CI/CD)
+vqx promote --from dev --to prod --yes
+```
+
+Promote options:
+
+| Option | Description |
+|--------|-------------|
+| `--from` | Source profile name |
+| `--to` | Target profile name |
+| `--no-diff` | Skip diff display |
+| `--no-test` | Skip post-promotion tests |
+| `--testsuite` | Test suite to run after promotion |
+| `--procedure` | Procedure to run after promotion |
+| `-y, --yes` | Skip confirmation prompts |
+
+**Workflow:**
+1. Export metadata from source environment
+2. Compare with target environment (optional)
+3. Confirm promotion
+4. Import to target environment
+5. Run tests (optional)
+
 ## CLI Reference Mapping
 
 ### Connection Options
@@ -595,9 +715,12 @@ src/
     diff.rs         # Environment comparison
     doctor.rs       # Environment checks
     export.rs       # Export with normalization
+    external.rs     # Direct CLI access (passthrough)
     import.rs       # Import with safety confirmations
-    passthrough.rs  # Direct CLI access
     profile.rs      # Profile management
+    promote.rs      # Environment promotion
+    run.rs          # Test/procedure execution
+    safe_delete.rs  # Safe deletion with backup
     sync.rs         # Bidirectional sync (pull/push)
 ```
 
@@ -607,6 +730,33 @@ src/
 2. Create implementation in `src/commands/`
 3. Add to dispatch in `src/main.rs`
 4. Document CLI reference mapping in code comments
+
+## Release Process
+
+Releases are created manually via GitHub Actions to control costs.
+
+### Creating a Release
+
+1. Go to [Actions → Release](https://github.com/shun-sonohara/vqx/actions/workflows/auto-release.yml)
+2. Click "Run workflow"
+3. Select version type:
+   - `patch` - Bug fixes (0.1.0 → 0.1.1)
+   - `minor` - New features (0.1.0 → 0.2.0)
+   - `major` - Breaking changes (0.1.0 → 1.0.0)
+4. Click "Run workflow"
+
+The workflow will:
+1. Bump version in `Cargo.toml`
+2. Create and push a git tag
+3. Build binaries for all platforms
+4. Create a GitHub Release with artifacts
+
+### CI/CD
+
+| Workflow | Trigger | Description |
+|----------|---------|-------------|
+| CI | Pull requests | Format check, clippy, build, test (ubuntu only) |
+| Release | Manual (workflow_dispatch) | Version bump + build + release |
 
 ## License
 

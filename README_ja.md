@@ -44,11 +44,21 @@ vqx は、underlying Vantiq CLI に対して、ワークフロー自動化、安
 - push操作前の差分プレビュー
 - 安全のための確認プロンプト
 
-### Phase 4以降（計画中）
+### Phase 4（実装済み）
 
-- `safe-delete` - 確認とバックアップ付きの破壊的操作
-- `promote` - ワークフロー: export → diff → confirm → import → test
-- `run` - テストスイートとプロシージャ実行
+| コマンド | 説明 | 参照箇所 |
+|----------|------|----------|
+| `run test` | 単体テスト実行 | Run セクション |
+| `run testsuite` | テストスイート実行 | Run セクション |
+| `run procedure` | パラメータ付きプロシージャ実行 | Run セクション |
+| `safe-delete` | バックアップと確認付き削除 | Delete セクション |
+| `promote` | 環境間リソース移行 | - |
+
+**主な機能:**
+- 削除前の自動バックアップ（`~/.local/share/vqx/backups` に保存）
+- safe-delete の dry-run モード
+- 大量削除の制限保護（デフォルト100件）
+- 環境移行ワークフロー: export → diff → confirm → import → test
 
 ## 前提条件
 
@@ -595,9 +605,12 @@ src/
     diff.rs         # 環境比較
     doctor.rs       # 環境チェック
     export.rs       # 正規化付きエクスポート
+    external.rs     # CLI直接実行（パススルー）
     import.rs       # 安全確認付きインポート
-    passthrough.rs  # CLI直接実行
     profile.rs      # プロファイル管理
+    promote.rs      # 環境間移行
+    run.rs          # テスト/プロシージャ実行
+    safe_delete.rs  # バックアップ付き安全削除
     sync.rs         # 双方向同期（pull/push）
 ```
 
@@ -607,6 +620,33 @@ src/
 2. `src/commands/` に実装を作成
 3. `src/main.rs` のディスパッチに追加
 4. コードコメントに CLI Reference マッピングを文書化
+
+## リリース手順
+
+リリースはコスト管理のため GitHub Actions で手動で行います。
+
+### リリースの作成
+
+1. [Actions → Release](https://github.com/shun-sonohara/vqx/actions/workflows/auto-release.yml) に移動
+2. "Run workflow" をクリック
+3. バージョンタイプを選択：
+   - `patch` - バグ修正（0.1.0 → 0.1.1）
+   - `minor` - 新機能（0.1.0 → 0.2.0）
+   - `major` - 破壊的変更（0.1.0 → 1.0.0）
+4. "Run workflow" をクリック
+
+ワークフローは以下を実行します：
+1. `Cargo.toml` のバージョンをバンプ
+2. git タグを作成してプッシュ
+3. 全プラットフォーム用バイナリをビルド
+4. アーティファクト付き GitHub Release を作成
+
+### CI/CD
+
+| ワークフロー | トリガー | 説明 |
+|-------------|---------|------|
+| CI | プルリクエスト | フォーマット、clippy、ビルド、テスト（ubuntuのみ） |
+| Release | 手動（workflow_dispatch） | バージョンバンプ + ビルド + リリース |
 
 ## ライセンス
 
