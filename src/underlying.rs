@@ -692,6 +692,12 @@ impl UnderlyingCli {
             .await
     }
 
+    /// Execute `run test` command
+    /// PDF: "run test <testName>"
+    pub async fn run_test(&self, options: &CliOptions, test_name: &str) -> Result<ExecResult> {
+        self.execute(options, "run", ["test", test_name]).await
+    }
+
     /// Execute `run testsuite` command
     /// PDF: "When running a test suite you must supply the test suite name"
     pub async fn run_testsuite(

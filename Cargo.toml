@@ -45,6 +45,7 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.11", features = ["v4"] }
 tempfile = "3.14"
 similar = "2.6"
+walkdir = "2.5"
 
 # Platform-specific credential storage
 # - macOS: apple-native (Keychain)
