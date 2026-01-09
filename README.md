@@ -10,59 +10,18 @@ vqx provides workflow automation, safety guards, and developer-friendly features
 
 ## Features
 
-### Phase 1 (Implemented)
-
-| Command | Description | Reference |
-|---------|-------------|-----------|
-| `doctor` | Check environment prerequisites | Prerequisites, Installation sections |
-| `profile` | Manage connection profiles | Profile, Command Line Options sections |
-| `passthrough` | Direct CLI access | All commands |
-
-### Phase 2 (Implemented)
-
-| Command | Description | Reference |
-|---------|-------------|-----------|
-| `export` | Export resources with JSON normalization | Export section |
-| `import` | Import resources with safety confirmations | Import section |
-
-**Key Features:**
-- JSON normalization for git-friendly diffs (sorted keys, stable arrays, timestamp removal)
-- Confirmation prompts before destructive operations
-- Progress indicators and detailed output
-
-### Phase 3 (Implemented)
-
-| Command | Description | Reference |
-|---------|-------------|-----------|
-| `diff` | Compare resources between environments or directories | - |
-| `sync pull` | Export from remote to local with normalization | Export section |
-| `sync push` | Import to remote with diff preview and confirmation | Import section |
-
-**Key Features:**
-- Compare profiles (remote) or directories (local)
-- Automatic export and normalization for comparison
-- Diff preview before push operations
-- Confirmation prompts for safety
-
-### Phase 4 (Implemented)
-
-| Command | Description | Reference |
-|---------|-------------|-----------|
-| `run test` | Run a single test | Run section |
-| `run testsuite` | Run a test suite | Run section |
-| `run procedure` | Run a procedure with parameters | Run section |
-| `safe-delete` | Delete with backup and confirmation | Delete section |
-| `promote` | Promote resources between environments | - |
-
-**Key Features:**
-- Automatic backup before deletion (stored in `~/.local/share/vqx/backups`)
-- Dry-run mode for safe-delete
-- Limit protection for mass deletions (100 items default)
-- Environment promotion workflow: export → diff → confirm → import → test
+- **Profile Management** - Secure credential storage with keyring support
+- **Export/Import** - JSON normalization for git-friendly diffs
+- **Environment Comparison** - Diff between profiles or directories
+- **Synchronization** - Bidirectional sync with pull/push workflow
+- **Safe Operations** - Backup and confirmation for destructive operations
+- **Environment Promotion** - Automated workflow for cross-environment deployment
+- **Test Execution** - Run tests, test suites, and procedures
+- **Direct CLI Access** - Passthrough to underlying Vantiq CLI
 
 ## Prerequisites
 
-From [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/), "Prerequisites" section:
+From [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/):
 
 > The Vantiq CLI is a Java (Groovy) application and requires an installation of Java 11.
 
@@ -98,55 +57,23 @@ vqx --version
 
 #### macOS Security (Gatekeeper)
 
-macOS may block the binary with a message like:
-> "vqx" cannot be opened because it is from an unidentified developer.
-
-or
-
-> macOS cannot verify that this app is free from malware.
-
-To resolve this, remove the quarantine attribute:
+If macOS blocks the binary, remove the quarantine attribute:
 
 ```bash
-# Remove quarantine attribute
 xattr -d com.apple.quarantine /usr/local/bin/vqx
-
-# Or if you extracted to current directory
-xattr -d com.apple.quarantine ./vqx
 ```
-
-Alternatively, you can right-click the binary in Finder, select "Open", and then click "Open" in the dialog.
 
 #### Windows
 
 1. Download `vqx-windows-x86_64.zip` from [Releases](https://github.com/shun-sonohara/vqx/releases)
 2. Extract the ZIP file
-3. Move `vqx.exe` to a directory in your PATH, or add the extracted directory to your PATH
-
-**Adding to PATH (PowerShell):**
-
-```powershell
-# Add to user PATH (requires restart of terminal)
-$path = [Environment]::GetEnvironmentVariable("Path", "User")
-[Environment]::SetEnvironmentVariable("Path", "$path;C:\path\to\vqx", "User")
-```
-
-**Windows Security (SmartScreen):**
-
-Windows may show a SmartScreen warning:
-> Windows protected your PC
-
-Click "More info" and then "Run anyway" to allow the application.
+3. Move `vqx.exe` to a directory in your PATH
 
 ### From Source
 
 ```bash
 cargo install --path .
-```
-
-Or build manually:
-
-```bash
+# Or build manually
 cargo build --release
 ./target/release/vqx --help
 ```
@@ -156,11 +83,7 @@ cargo build --release
 ### 1. Check Environment
 
 ```bash
-# Verify Java and CLI are properly installed
 vqx doctor
-
-# Verbose output with CLI reference
-vqx doctor --verbose
 ```
 
 ### 2. Create a Profile
@@ -170,52 +93,41 @@ vqx doctor --verbose
 vqx profile init
 
 # Or manual setup
-vqx profile set myprofile \
+vqx profile set dev \
     --url https://dev.vantiq.com \
-    --token YOUR_ACCESS_TOKEN \
-    --description "Development environment"
+    --token YOUR_ACCESS_TOKEN
 ```
 
-**Note**: "public clouds and any server using keycloak access require use of the token option"
-
-### 3. Use the CLI
+### 3. Use Commands
 
 ```bash
-# List all types using a profile
-vqx --profile myprofile passthrough list types
+# Export resources
+vqx -s dev export -d ./export
 
-# Export metadata
-vqx --profile myprofile passthrough export metadata -d ./export
+# List types (direct CLI access)
+vqx -s dev list types
 ```
 
 ## Configuration
 
-### Profile Storage (profiles.toml)
+### Profile Storage
 
-Profiles are stored in TOML format at:
+Profiles are stored at:
 - macOS/Linux: `~/.config/vqx/profiles.toml`
 - Windows: `%APPDATA%\vqx\profiles.toml`
 
-See [examples/profiles.toml](examples/profiles.toml) for a sample configuration.
-
-**Profile Structure:**
-
 ```toml
-# Default profile when --profile is not specified
 default_profile = "dev"
 
 [profiles.dev]
 url = "https://dev.vantiq.com"
-token = "YOUR_ACCESS_TOKEN"           # For public clouds (recommended)
-# username = "user"                   # For Edge servers only
-# password = "pass"                   # For Edge servers only
-# namespace = "MyNamespace"           # Only with username/password
+token = "YOUR_ACCESS_TOKEN"
 trust_ssl = false
 description = "Development environment"
-use_secure_storage = false            # true = store credentials in keyring
+use_secure_storage = false  # true = store in keyring
 ```
 
-**Authentication Options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)):**
+**Authentication Options** (from [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/)):
 
 | Field | CLI Flag | Description |
 |-------|----------|-------------|
@@ -226,64 +138,17 @@ use_secure_storage = false            # true = store credentials in keyring
 | `namespace` | `-n` | Target namespace (username/password only) |
 | `trust_ssl` | `-trust` | Trust SSL certificates |
 
-**Profile Management Commands:**
-
-```bash
-# Create profile interactively
-vqx profile init
-
-# Create/update profile
-vqx profile set myprofile --url https://dev.vantiq.com --token YOUR_TOKEN
-
-# Create profile with secure storage (keyring)
-vqx profile set myprofile --url https://dev.vantiq.com --token YOUR_TOKEN --secure
-
-# List all profiles
-vqx profile list
-
-# Show profile details
-vqx profile show myprofile
-
-# Set default profile
-vqx profile default myprofile
-
-# Delete profile
-vqx profile delete myprofile
-```
-
-### Global Configuration (config.toml)
+### Global Configuration
 
 Configuration file location:
 - macOS/Linux: `~/.config/vqx/config.toml`
 - Windows: `%APPDATA%\vqx\config.toml`
 
-See [examples/config.toml](examples/config.toml) for a sample configuration.
-
-**Configuration Options:**
-
 ```toml
-# CLI executable path
 cli_path = "vantiq"
-
-# Execution settings
 timeout_seconds = 120
 max_retries = 3
-retry_delay_ms = 1000
-default_chunk_size = 5000
 
-# Logging
-[logging]
-level = "info"              # trace, debug, info, warn, error
-format = "text"             # text, json
-
-# Output
-[output]
-default_format = "table"    # json, table, csv
-pretty_json = true
-colors = true
-progress = true
-
-# JSON normalization for git-friendly diffs
 [normalization]
 sort_keys = true
 sort_arrays = true
@@ -295,39 +160,32 @@ excluded_fields = [
     "_id",
     "ars_version",
 ]
-
-# Safe delete settings (Phase 4)
-[safe_delete]
-require_confirm = true
-require_backup = true
-max_items_without_force = 10
-blocked_prefixes = ["System", "ARS"]
 ```
 
-**Environment Variables:**
+### Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `VQX_CLI_PATH` | Override `cli_path` setting |
+| `VQX_CLI_PATH` | Path to Vantiq CLI executable |
 | `VQX_PROFILE` | Default profile name |
 | `VQX_CONFIG` | Path to config.toml |
 
-## CLI Usage
+## Commands
 
 ### Global Options
 
 ```
---cli <path>      Path to Vantiq CLI executable (default: vantiq)
---profile <name>  Profile to use for connection
---config <path>   Path to vqx config file
---verbose         Enable verbose output
---quiet           Suppress non-essential output
---output <fmt>    Output format: text, json, csv
+-s, --profile <name>  Profile to use for connection
+--cli <path>          Path to Vantiq CLI executable
+--config <path>       Path to config file
+-v, --verbose         Enable verbose output
+-q, --quiet           Suppress non-essential output
+--output <format>     Output format: text, json, csv
 ```
 
-### Commands
+---
 
-#### doctor
+### doctor
 
 Check environment and CLI prerequisites.
 
@@ -338,112 +196,122 @@ vqx doctor --cli-only         # Only check CLI
 vqx doctor --test-connection  # Also test server connection
 ```
 
-#### profile
+---
 
-Manage connection profiles.
+### profile
+
+Manage connection profiles with secure credential storage.
 
 ```bash
-vqx profile list              # List all profiles
-vqx profile show myprofile    # Show profile details
-vqx profile init              # Interactive profile creation
-vqx profile set <name> ...    # Create/update a profile
-vqx profile delete <name>     # Delete a profile
-vqx profile default <name>    # Set default profile
-vqx profile export <file>     # Export profiles to file
-vqx profile import <file>     # Import profiles from file
+# List all profiles
+vqx profile list
+
+# Show profile details
+vqx profile show dev
+
+# Interactive profile creation
+vqx profile init
+
+# Create/update profile
+vqx profile set dev --url https://dev.vantiq.com --token YOUR_TOKEN
+
+# Create profile with secure storage (keyring)
+vqx profile set dev --url https://dev.vantiq.com --token YOUR_TOKEN --secure
+
+# Set default profile
+vqx profile default dev
+
+# Delete profile
+vqx profile delete dev
+
+# Export/import profiles
+vqx profile export profiles.toml
+vqx profile import profiles.toml --overwrite
 ```
 
-Profile options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Command Line Options"):
+**Profile Options:**
 
 | Option | CLI Flag | Description |
 |--------|----------|-------------|
-| `--url` | `-b` | Base URL (default: https://dev.vantiq.com) |
+| `--url` | `-b` | Base URL |
 | `--username` | `-u` | Username (Edge servers only) |
 | `--password` | `-p` | Password |
-| `--token` | `-t` | Access token (recommended for public clouds) |
-| `--namespace` | `-n` | Target namespace (username/password only) |
+| `--token` | `-t` | Access token (recommended) |
+| `--namespace` | `-n` | Target namespace |
 | `--trust-ssl` | `-trust` | Trust SSL certificates |
+| `--secure` | - | Store credentials in keyring |
 
-#### Direct CLI Commands
+---
 
-Any unrecognized command is passed directly to the underlying Vantiq CLI.
-
-```bash
-# These commands are passed directly to the Vantiq CLI
-vqx list types
-vqx find procedures MyProc
-vqx select types
-vqx --profile prod run procedure Utils.getNamespaceAndProfiles
-
-# With profile
-vqx --profile dev list types
-```
-
-#### export
+### export
 
 Export resources from Vantiq with JSON normalization for git-friendly diffs.
 
 ```bash
 # Export metadata (default)
-vqx export -d ./export
+vqx -s dev export -d ./export
 
-# Export with specific type
-vqx export metadata -d ./export
-vqx export data -d ./export
+# Export data
+vqx -s dev export data -d ./data
 
 # Export project
-vqx export project --project MyProject -d ./export
+vqx -s dev export project --project MyProject -d ./export
 
 # Export with chunking (for large exports)
-vqx export metadata -d ./export --chunk 5000
+vqx -s dev export -d ./export --chunk 5000
 
 # Export specific types only
-vqx export metadata --include types --include procedures
+vqx -s dev export --include types --include procedures
+
+# Exclude specific types
+vqx -s dev export --exclude rules
 
 # Disable JSON normalization
-vqx export metadata -d ./export --normalize false
+vqx -s dev export -d ./export --normalize false
 ```
 
-Export options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Export" section):
+**Export Options:**
 
 | Option | CLI Flag | Description |
 |--------|----------|-------------|
 | `-d, --directory` | `-d` | Output directory |
 | `--chunk` | `-chunk` | Chunk size for large exports |
-| `--include` | `-include` | Types to include |
-| `--exclude` | `-exclude` | Types to exclude |
+| `--include` | `-include` | Types to include (repeatable) |
+| `--exclude` | `-exclude` | Types to exclude (repeatable) |
 | `--until` | `-until` | Export data until timestamp |
-| `--ignore-errors` | `-ignoreErrors` | Ignore errors during export |
-| `--normalize` | (vqx extension) | Normalize JSON for git diffs (default: true) |
+| `--ignore-errors` | `-ignoreErrors` | Continue on errors |
+| `--normalize` | - | JSON normalization (default: true) |
 
-**JSON Normalization** (vqx extension):
+**JSON Normalization:**
 - Sorts object keys alphabetically
-- Stabilizes array ordering by `name` or `ars_version`
+- Stabilizes array ordering by `name` field
 - Removes volatile timestamps (`ars_createdAt`, `ars_modifiedAt`, etc.)
-- Consistent indentation (2 spaces)
+- Consistent 2-space indentation
 
-#### import
+---
+
+### import
 
 Import resources to Vantiq with safety confirmations.
 
 ```bash
-# Import metadata (with confirmation prompt)
-vqx import metadata -d ./export
+# Import metadata (with confirmation)
+vqx -s dev import -d ./export
 
 # Import data
-vqx import data -d ./data
+vqx -s dev import data -d ./data
 
 # Import with chunking
-vqx import metadata -d ./export --chunk 5000
+vqx -s dev import -d ./export --chunk 5000
 
 # Import specific types only
-vqx import metadata --include types --exclude rules
+vqx -s dev import --include types
 
 # Skip confirmation (for CI/CD)
-vqx import metadata -d ./export --yes
+vqx -s dev import -d ./export --yes
 ```
 
-Import options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Import" section):
+**Import Options:**
 
 | Option | CLI Flag | Description |
 |--------|----------|-------------|
@@ -452,26 +320,23 @@ Import options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/syste
 | `--include` | `-include` | Types to include |
 | `--exclude` | `-exclude` | Types to exclude |
 | `--ignore` | `-ignore` | Resource types to ignore |
-| `-y, --yes` | (vqx extension) | Skip confirmation prompt |
+| `-y, --yes` | - | Skip confirmation prompt |
 
-**Safety Features** (vqx extension):
-- Confirmation prompt before import (prevents accidental overwrites)
-- File count preview
-- Server and profile display
+---
 
-#### diff
+### diff
 
 Compare resources between two sources (profiles or directories).
 
 ```bash
 # Compare two directories
-vqx diff ./local-export ./other-export
+vqx diff ./local ./other
 
-# Compare a profile with a local directory
-vqx diff my-profile ./local-export
+# Compare profile with directory
+vqx diff dev ./local
 
-# Compare two profiles (remote-to-remote)
-vqx diff dev-profile prod-profile
+# Compare two profiles
+vqx diff dev prod
 
 # Show full diff output
 vqx diff ./source ./target --full
@@ -480,187 +345,209 @@ vqx diff ./source ./target --full
 vqx diff ./source ./target --resource types --resource procedures
 ```
 
-Diff options:
+**Diff Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--full` | Show complete diff output (not just summary) |
-| `--resource` | Filter to specific resource types |
+| `--full` | Show complete diff output |
+| `--resource` | Filter to specific resource types (repeatable) |
 
 **Features:**
 - Automatically exports from profiles for comparison
 - JSON normalization ensures accurate comparisons
-- Shows added, removed, and modified resources
-- Color-coded output for easy reading
+- Color-coded output (green: added, red: removed, yellow: modified)
 
-#### sync
+---
+
+### sync
 
 Synchronize resources between local directories and Vantiq servers.
 
-**sync pull** - Export from remote to local:
+#### sync pull
+
+Export from remote to local directory.
 
 ```bash
-# Pull from server to local directory
-vqx sync pull -d ./local
+# Pull from server
+vqx -s dev sync pull -d ./local
 
-# Force overwrite (skip confirmation)
-vqx sync pull -d ./local --force
+# Force overwrite local changes
+vqx -s dev sync pull -d ./local --force
 ```
 
-**sync push** - Import from local to remote:
+#### sync push
+
+Import from local to remote with diff preview.
 
 ```bash
 # Push with diff preview and confirmation
-vqx sync push -d ./local
+vqx -s dev sync push -d ./local
 
 # Dry run - show what would be pushed
-vqx sync push -d ./local --dry-run
+vqx -s dev sync push -d ./local --dry-run
 
 # Skip confirmation (for CI/CD)
-vqx sync push -d ./local --yes
+vqx -s dev sync push -d ./local --yes
 ```
 
-Sync options:
+**Sync Options:**
 
 | Subcommand | Option | Description |
 |------------|--------|-------------|
-| `pull` | `-d, --directory` | Local directory to sync to |
-| `pull` | `--force` | Force overwrite without confirmation |
-| `push` | `-d, --directory` | Local directory to sync from |
-| `push` | `--dry-run` | Show changes without applying |
-| `push` | `-y, --yes` | Skip confirmation prompt |
+| `pull` | `-d, --directory` | Local directory |
+| `pull` | `--force` | Force overwrite |
+| `push` | `-d, --directory` | Local directory |
+| `push` | `--dry-run` | Preview changes only |
+| `push` | `-y, --yes` | Skip confirmation |
 
-**Features:**
-- Automatic diff preview before push
-- JSON normalization on pull
-- Confirmation prompts for safety
-- Progress indicators
+---
 
-#### run
+### run
 
 Run tests, test suites, or procedures on Vantiq.
 
+#### run test
+
 ```bash
-# Run a single test
-vqx run test MyTest
-
-# Run a test suite
-vqx run testsuite MyTestSuite
-
-# Run a test suite starting from a specific test
-vqx run testsuite MyTestSuite --start-from SpecificTest
-
-# Run a procedure
-vqx run procedure MyProcedure
-
-# Run a procedure with parameters
-vqx run procedure MyProcedure param1:value1 param2:value2
+vqx -s dev run test MyTest
 ```
 
-Run options (based on [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/) "Run" section):
+#### run testsuite
+
+```bash
+# Run test suite
+vqx -s dev run testsuite MyTestSuite
+
+# Start from specific test
+vqx -s dev run testsuite MyTestSuite --start-from SpecificTest
+```
+
+#### run procedure
+
+```bash
+# Run procedure
+vqx -s dev run procedure MyProcedure
+
+# Run with parameters
+vqx -s dev run procedure MyProcedure param1:value1 param2:value2
+```
+
+**Run Options:**
 
 | Subcommand | Option | Description |
 |------------|--------|-------------|
-| `test` | `<name>` | Test name to run |
+| `test` | `<name>` | Test name |
 | `testsuite` | `<name>` | Test suite name |
 | `testsuite` | `--start-from` | Start from specific test |
 | `procedure` | `<name>` | Procedure name |
-| `procedure` | `[params...]` | Parameters as `name:value` pairs |
+| `procedure` | `[params...]` | Parameters as `name:value` |
 
-#### safe-delete
+---
+
+### safe-delete
 
 Safely delete resources with backup and confirmation.
 
 ```bash
-# Delete a single resource (with confirmation and backup)
-vqx safe-delete types MyType
+# Delete single resource
+vqx -s dev safe-delete types MyType
 
-# Delete with a query (deleteMatching)
-vqx safe-delete types '{"name": {"$regex": "Test.*"}}'
+# Delete with query (deleteMatching)
+vqx -s dev safe-delete types '{"name": {"$regex": "Test.*"}}'
 
-# Dry run - preview what would be deleted
-vqx safe-delete types MyType --dry-run
+# Dry run - preview only
+vqx -s dev safe-delete types MyType --dry-run
 
 # Skip backup
-vqx safe-delete types MyType --no-backup
+vqx -s dev safe-delete types MyType --no-backup
 
 # Skip confirmation
-vqx safe-delete types MyType --yes
+vqx -s dev safe-delete types MyType --yes
 
-# Force delete more than 100 items
-vqx safe-delete types '{"obsolete": true}' --force
+# Force delete over 100 items
+vqx -s dev safe-delete types '{"obsolete": true}' --force
 ```
 
-Safe-delete options:
+**Safe-Delete Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--dry-run` | Preview what would be deleted without actually deleting |
+| `--dry-run` | Preview without deleting |
 | `--no-backup` | Skip automatic backup |
-| `-y, --yes` | Skip confirmation prompt |
-| `--force` | Allow deleting more than 100 items |
+| `-y, --yes` | Skip confirmation |
+| `--force` | Allow deleting over 100 items |
 
 **Safety Features:**
-- Automatic backup before deletion (stored in `~/.local/share/vqx/backups/`)
-- Confirmation prompt showing items to be deleted
-- Limit of 100 items for deleteMatching (use `--force` to override)
+- Automatic backup to `~/.local/share/vqx/backups/`
+- Confirmation prompt showing items to delete
+- 100 item limit for deleteMatching (override with `--force`)
 - Dry-run mode for safe preview
 
-#### promote
+---
+
+### promote
 
 Promote resources from one environment to another.
 
 ```bash
-# Promote from dev to prod
+# Basic promotion
 vqx promote --from dev --to prod
 
-# Promote without showing diff
+# Skip diff display
 vqx promote --from dev --to prod --no-diff
 
-# Promote and run test suite after
+# Run test suite after promotion
 vqx promote --from dev --to prod --testsuite SmokeTests
 
-# Promote and run procedure after
+# Run procedure after promotion
 vqx promote --from dev --to prod --procedure ValidateDeployment
 
-# Skip all confirmations (for CI/CD)
+# Skip confirmations (for CI/CD)
 vqx promote --from dev --to prod --yes
 ```
 
-Promote options:
+**Promote Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--from` | Source profile name |
-| `--to` | Target profile name |
+| `--from` | Source profile |
+| `--to` | Target profile |
 | `--no-diff` | Skip diff display |
 | `--no-test` | Skip post-promotion tests |
-| `--testsuite` | Test suite to run after promotion |
-| `--procedure` | Procedure to run after promotion |
-| `-y, --yes` | Skip confirmation prompts |
+| `--testsuite` | Test suite to run after |
+| `--procedure` | Procedure to run after |
+| `-y, --yes` | Skip confirmations |
 
 **Workflow:**
-1. Export metadata from source environment
-2. Compare with target environment (optional)
+1. Export metadata from source
+2. Compare with target (optional)
 3. Confirm promotion
-4. Import to target environment
+4. Import to target
 5. Run tests (optional)
 
-## CLI Reference Mapping
+---
 
-### Connection Options
+### Direct CLI Access
 
-| vqx | CLI Flag | Description |
-|-----|--------------|-------------|
-| `--profile` | `-s` | Profile name |
-| Profile.url | `-b` | Base URL |
-| Profile.username | `-u` | Username |
-| Profile.password | `-p` | Password |
-| Profile.token | `-t` | Access token |
-| Profile.namespace | `-n` | Target namespace |
-| Profile.trust_ssl | `-trust` | Trust SSL |
+Any unrecognized command is passed directly to the underlying Vantiq CLI.
 
-### Important Notes (from [CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/))
+```bash
+# List types
+vqx -s dev list types
+
+# Find resource
+vqx -s dev find procedures MyProc
+
+# Select with query
+vqx -s dev select types
+
+# Any other CLI command
+vqx -s dev <command> [args...]
+```
+
+## CLI Reference Notes
+
+From [Vantiq CLI Reference Guide](https://dev.vantiq.com/docs/system/cli/):
 
 1. **Token vs Password**: "If a password is specified, it is used instead of the token."
 
@@ -670,25 +557,20 @@ Promote options:
 
 4. **Namespace limitation**: "the namespace option can only be used with username/password; it cannot be used with long-lived access tokens"
 
-5. **Deprecated commands**: "the execute command is deprecated in favor of the run procedure command as of release 1.37"
-
 ## Security
 
 ### Credential Storage
 
-vqx supports secure credential storage:
+vqx supports multiple credential storage methods:
 
-1. **Keyring** (default): Uses system keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service)
-
-2. **Encrypted file**: Fallback when keyring is unavailable (uses `age` encryption)
-
-3. **Plain text**: Not recommended, but available for development
+1. **Keyring** (recommended): System keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service)
+2. **Plain text**: In profiles.toml (not recommended for production)
 
 ### Sensitive Data Handling
 
 - Passwords and tokens are never logged
 - CLI arguments are masked in verbose output
-- Secure storage is used by default when available
+- Secure storage available via `--secure` flag
 
 ## Development
 
@@ -697,6 +579,7 @@ vqx supports secure credential storage:
 ```bash
 cargo build
 cargo test
+cargo build --release
 ```
 
 ### Project Structure
@@ -704,36 +587,28 @@ cargo test
 ```
 src/
   main.rs           # Entry point
-  cli.rs            # CLI command definitions (clap)
-  config.rs         # Global configuration
+  cli.rs            # CLI definitions (clap)
+  config.rs         # Configuration
   error.rs          # Error types
-  normalizer.rs     # JSON normalization for git-friendly diffs
+  normalizer.rs     # JSON normalization
   profile.rs        # Profile management
   underlying.rs     # CLI execution layer
   commands/
-    mod.rs
-    diff.rs         # Environment comparison
     doctor.rs       # Environment checks
-    export.rs       # Export with normalization
-    external.rs     # Direct CLI access (passthrough)
-    import.rs       # Import with safety confirmations
     profile.rs      # Profile management
-    promote.rs      # Environment promotion
+    export.rs       # Export with normalization
+    import.rs       # Import with confirmations
+    diff.rs         # Environment comparison
+    sync.rs         # Pull/push synchronization
     run.rs          # Test/procedure execution
-    safe_delete.rs  # Safe deletion with backup
-    sync.rs         # Bidirectional sync (pull/push)
+    safe_delete.rs  # Safe deletion
+    promote.rs      # Environment promotion
+    external.rs     # Direct CLI passthrough
 ```
-
-### Adding New Commands
-
-1. Define command in `src/cli.rs`
-2. Create implementation in `src/commands/`
-3. Add to dispatch in `src/main.rs`
-4. Document CLI reference mapping in code comments
 
 ## Release Process
 
-Releases are created manually via GitHub Actions to control costs.
+Releases are created manually via GitHub Actions.
 
 ### Creating a Release
 
@@ -745,18 +620,12 @@ Releases are created manually via GitHub Actions to control costs.
    - `major` - Breaking changes (0.1.0 → 1.0.0)
 4. Click "Run workflow"
 
-The workflow will:
-1. Bump version in `Cargo.toml`
-2. Create and push a git tag
-3. Build binaries for all platforms
-4. Create a GitHub Release with artifacts
-
 ### CI/CD
 
 | Workflow | Trigger | Description |
 |----------|---------|-------------|
-| CI | Pull requests | Format check, clippy, build, test (ubuntu only) |
-| Release | Manual (workflow_dispatch) | Version bump + build + release |
+| CI | Pull requests | Format, lint, build, test |
+| Release | Manual | Version bump + build + release |
 
 ## License
 
